@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ProfileScreenProps } from '../types';
 
-export function ProfileScreen({ navigation }: ProfileScreenProps) {
+export function ProfileScreen({}: ProfileScreenProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>

@@ -2,7 +2,9 @@ import * as React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HomeScreenProps } from '../types';
 
-export function HomeScreen({ navigation }: HomeScreenProps) {
+export function HomeScreen({
+  navigation,
+}: HomeScreenProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Hello there!</Text>

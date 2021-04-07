@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AddFoodScreenProps } from '../types';
 
-export function AddFoodScreen({ navigation }: AddFoodScreenProps) {
+export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add food</Text>

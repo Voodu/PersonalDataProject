@@ -12,7 +12,7 @@ import { MainStackParamList } from '../types';
 
 const MainStack = createStackNavigator<MainStackParamList>();
 
-export default function MainStackNavigator() {
+export default function MainStackNavigator(): React.ReactElement {
   return (
     <MainStack.Navigator initialRouteName="Home">
       <MainStack.Screen name="Home" component={HomeScreen} />

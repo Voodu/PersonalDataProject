@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AnalysisScreenProps } from '../types';
 
-export function AnalysisScreen({ navigation }: AnalysisScreenProps) {
+export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Analysis</Text>

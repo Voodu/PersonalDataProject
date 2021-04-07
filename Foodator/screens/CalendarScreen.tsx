@@ -2,7 +2,7 @@ import * as React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CalendarScreenProps } from '../types';
 
-export function CalendarScreen({ navigation }: CalendarScreenProps) {
+export function CalendarScreen({}: CalendarScreenProps): React.ReactElement {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calendar</Text>

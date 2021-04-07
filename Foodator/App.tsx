@@ -5,7 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import useCachedResources from './hooks/useCachedResources';
 import Navigation from './navigation';
 
-export default function App() {
+export default function App(): React.ReactElement | null {
   const isLoadingComplete = useCachedResources();
 
   if (!isLoadingComplete) {
