@@ -1,5 +1,6 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
+import Colors from '../constants/Colors';
 import {
   AddDiscomfortScreen,
   AddFoodScreen,
@@ -14,7 +15,14 @@ const MainStack = createStackNavigator<MainStackParamList>();
 
 export default function MainStackNavigator(): React.ReactElement {
   return (
-    <MainStack.Navigator initialRouteName="Home">
+    <MainStack.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        cardStyle: {
+          backgroundColor: Colors.light.background,
+        },
+      }}
+    >
       <MainStack.Screen name="Home" component={HomeScreen} />
       <MainStack.Screen
         name="AddFood"

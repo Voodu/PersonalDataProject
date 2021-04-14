@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#fff',
     justifyContent: 'flex-start',
     padding: '15%',
   },
