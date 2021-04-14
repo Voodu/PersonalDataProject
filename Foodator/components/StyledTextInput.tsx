@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import * as React from 'react';
 import {
   TouchableOpacity,
@@ -5,16 +6,27 @@ import {
   View,
   Image,
   ImageSourcePropType,
+  ColorValue,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
+import { IoniconGlyphs } from '../constants/IoniconGlyphs';
 
 type InputWithTouchableOpacityProps = TextInput['props'] & {
-  image: ImageSourcePropType;
+  image?: ImageSourcePropType;
+  icon?: IoniconGlyphs;
+  iconColor?: ColorValue;
 };
 
 export function InputWithTouchableOpacity(
   props: InputWithTouchableOpacityProps
 ): React.ReactElement {
+  let graphics = null;
+  if (props.image) {
+    graphics = <Image source={props.image} />;
+  } else if (props.icon) {
+    // TODO: Move color to constants
+    graphics = <Ionicons name={props.icon} size={32} color={'#9FB6BF'} />;
+  }
   return (
     <View style={[styles.container, props.style]}>
       <TextInput
@@ -23,9 +35,7 @@ export function InputWithTouchableOpacity(
         // TODO: Move color to constants
         placeholderTextColor="#9FB6BF"
       />
-      <TouchableOpacity activeOpacity={0.5} style={styles.button}>
-        <Image source={props.image} />
-      </TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.5}>{graphics}</TouchableOpacity>
     </View>
   );
 }
@@ -33,19 +43,12 @@ export function InputWithTouchableOpacity(
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#000000',
     maxWidth: '100%',
   },
   input: {
     fontFamily: 'lato',
     fontSize: 24,
-    width: '80%',
-  },
-  button: {
-    width: '20%',
   },
 });
