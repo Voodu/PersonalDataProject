@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { HeaderText } from '../components/StyledText';
 import { InputWithTouchableOpacity } from '../components/StyledTextInput';
 import { AddFoodScreenProps } from '../types';
-import { SelectableListElement } from '../components/SelectableListElement';
+import { SelectableListElement } from '../components/ListElements';
 import Colors from '../constants/Colors';
 
 export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {

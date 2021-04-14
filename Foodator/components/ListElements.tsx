@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from 'react-native';
-import { CheckBox } from './CheckBox';
+import { CheckBox } from './CheckBoxes';
 import { RegularText, SecondaryText } from './StyledText';
 
 type ListElementProps = {
