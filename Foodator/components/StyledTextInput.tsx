@@ -7,6 +7,7 @@ import {
   Image,
   ImageSourcePropType,
   ColorValue,
+  GestureResponderEvent,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { IoniconGlyphs } from '../constants/IoniconGlyphs';
@@ -15,6 +16,7 @@ type InputWithTouchableOpacityProps = TextInput['props'] & {
   image?: ImageSourcePropType;
   icon?: IoniconGlyphs;
   iconColor?: ColorValue;
+  onPress?: (event: GestureResponderEvent) => void;
 };
 
 export function InputWithTouchableOpacity(
@@ -35,7 +37,7 @@ export function InputWithTouchableOpacity(
         // TODO: Move color to constants
         placeholderTextColor="#9FB6BF"
       />
-      <TouchableOpacity activeOpacity={0.5}>{graphics}</TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.5} onPress={props.onPress}>{graphics}</TouchableOpacity>
     </View>
   );
 }
