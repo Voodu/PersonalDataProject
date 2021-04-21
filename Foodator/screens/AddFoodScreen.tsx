@@ -1,10 +1,13 @@
 import * as React from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { HeaderText } from '../components/StyledText';
-import { InputWithTouchableOpacity } from '../components/StyledTextInput';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { AddFoodScreenProps } from '../types';
-import { SelectableListElement } from '../components/ListElements';
 import Colors from '../constants/Colors';
+import {
+  SelectableListElement,
+  HeaderText,
+  InputWithTouchableOpacity,
+  BigButton,
+} from '../components';
 
 export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
   // TODO: Remeber to have some sort of ID
@@ -32,11 +35,18 @@ export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
       <View style={styles.listContainer}>
         <InputWithTouchableOpacity
           placeholder="Find food..."
-          icon={'arrow-down'}
+          icon={'ios-barcode-sharp'}
           style={styles.input}
+          onPress={() => console.log('Scan barcode')}
         ></InputWithTouchableOpacity>
         <ScrollView>{listItems}</ScrollView>
       </View>
+      <BigButton
+        style={styles.addFoodButton}
+        onPress={() => console.log('Add Food')}
+      >
+        Add Food
+      </BigButton>
     </View>
   );
 }
@@ -59,9 +69,12 @@ const styles = StyleSheet.create({
   listContainer: {
     display: 'flex',
     flexDirection: 'column',
-    maxHeight: '75%',
+    maxHeight: '65%',
     backgroundColor: Colors.light.white,
     borderRadius: 17,
     padding: 16,
+  },
+  addFoodButton: {
+    marginTop: 'auto',
   },
 });
