@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native';
 import { CheckBox } from './CheckBoxes';
 import { RegularText, SecondaryText } from './StyledText';
 
@@ -13,10 +12,9 @@ type ListElementProps = {
 export function SelectableListElement(
   props: ListElementProps
 ): React.ReactElement {
-  // const [isSelected, setSelection] = useState(false);
   return (
     <View style={styles.mainContainer}>
-      <CheckBox value={props.selected} />
+      <CheckBox onChange={() => console.log('CheckBox pressed')}/>
       <View style={styles.textContainer}>
         <RegularText>{props.text}</RegularText>
         <SecondaryText>{props.subText}</SecondaryText>
