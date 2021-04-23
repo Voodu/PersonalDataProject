@@ -7,9 +7,12 @@ import {
   HeaderText,
   InputWithTouchableOpacity,
   BigButton,
+  BarCodeModal,
 } from '../components';
 
 export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
+  const [modalVisible, showBarCodeModal] = React.useState(false);
+
   // TODO: Remeber to have some sort of ID
   const products = [
     { product: 'Avocado', quantity: 'Half', selected: true },
@@ -37,7 +40,9 @@ export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
           placeholder="Find food..."
           icon={'ios-barcode-sharp'}
           style={styles.input}
-          onPress={() => console.log('Scan barcode')}
+          onPress={() => {
+            showBarCodeModal(true);
+          }}
         ></InputWithTouchableOpacity>
         <ScrollView>{listItems}</ScrollView>
       </View>
@@ -47,6 +52,14 @@ export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
       >
         Add Food
       </BigButton>
+      <BarCodeModal
+        visible={modalVisible}
+        onDismiss={() => showBarCodeModal(false)}
+        onScan={(data) => {
+          console.log('Scanned', data);
+          showBarCodeModal(false);
+        }}
+      />
     </View>
   );
 }

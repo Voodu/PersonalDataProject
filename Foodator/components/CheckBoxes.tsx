@@ -13,7 +13,7 @@ type CheckBoxProps = {
 };
 
 export function CheckBox(props: CheckBoxProps): React.ReactElement {
-  const [checked, setChecked] = React.useState(props.checked || false);
+  const [checked, setChecked] = React.useState(props.checked ?? false);
   const handlePress = () => {
     setChecked(!checked);
     if (props.onChange) {
