@@ -4,3 +4,4 @@ export * from './ListElements';
 export * from './Modals';
 export * from './StyledText';
 export * from './StyledTextInput';
+export * from './StyledPicker';

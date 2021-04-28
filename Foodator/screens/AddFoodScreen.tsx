@@ -8,6 +8,7 @@ import {
   InputWithTouchableOpacity,
   BigButton,
   BarCodeModal,
+  TimePicker,
 } from '../components';
 
 export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
@@ -46,6 +47,10 @@ export function AddFoodScreen({}: AddFoodScreenProps): React.ReactElement {
         ></InputWithTouchableOpacity>
         <ScrollView>{listItems}</ScrollView>
       </View>
+      <TimePicker
+        onChange={(event, date) => console.log(date?.toLocaleString())}
+        style={styles.timePicker}
+      />
       <BigButton
         style={styles.addFoodButton}
         onPress={() => console.log('Add Food')}
@@ -82,12 +87,15 @@ const styles = StyleSheet.create({
   listContainer: {
     display: 'flex',
     flexDirection: 'column',
-    maxHeight: '65%',
+    maxHeight: '50%',
     backgroundColor: Colors.light.white,
     borderRadius: 17,
     padding: 16,
   },
-  addFoodButton: {
+  timePicker: {
     marginTop: 'auto',
+  },
+  addFoodButton: {
+    marginTop: 15,
   },
 });
