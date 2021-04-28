@@ -37,7 +37,9 @@ export function InputWithTouchableOpacity(
         // TODO: Move color to constants
         placeholderTextColor="#9FB6BF"
       />
-      <TouchableOpacity activeOpacity={0.5} onPress={props.onPress}>{graphics}</TouchableOpacity>
+      <TouchableOpacity activeOpacity={0.5} onPress={props.onPress}>
+        {graphics}
+      </TouchableOpacity>
     </View>
   );
 }

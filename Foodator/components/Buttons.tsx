@@ -2,9 +2,14 @@ import * as React from 'react';
 import { StyleSheet, TouchableOpacity, Text } from 'react-native';
 import Colors from '../constants/Colors';
 
-export function BigButton(props: Text['props'] | TouchableOpacity['props']): React.ReactElement {
+export function BigButton(
+  props: Text['props'] | TouchableOpacity['props']
+): React.ReactElement {
   return (
-    <TouchableOpacity onPress={props.onPress} style={[styles.button, props.style]}>
+    <TouchableOpacity
+      onPress={props.onPress}
+      style={[styles.button, props.style]}
+    >
       <Text style={styles.text}>{props.children}</Text>
     </TouchableOpacity>
   );

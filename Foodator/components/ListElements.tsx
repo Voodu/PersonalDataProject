@@ -14,7 +14,7 @@ export function SelectableListElement(
 ): React.ReactElement {
   return (
     <View style={styles.mainContainer}>
-      <CheckBox onChange={() => console.log('CheckBox pressed')}/>
+      <CheckBox onChange={() => console.log('CheckBox pressed')} />
       <View style={styles.textContainer}>
         <RegularText>{props.text}</RegularText>
         <SecondaryText>{props.subText}</SecondaryText>
