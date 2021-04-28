@@ -1,9 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as React from 'react';
-import {
-  ColorValue,
-  TouchableOpacity,
-} from 'react-native';
+import { ColorValue, TouchableOpacity } from 'react-native';
 
 type CheckBoxProps = {
   checked?: boolean;
@@ -16,9 +13,7 @@ export function CheckBox(props: CheckBoxProps): React.ReactElement {
   const [checked, setChecked] = React.useState(props.checked ?? false);
   const handlePress = () => {
     setChecked(!checked);
-    if (props.onChange) {
-      props.onChange(checked);
-    }
+    props.onChange && props.onChange(checked);
   };
   return (
     <TouchableOpacity

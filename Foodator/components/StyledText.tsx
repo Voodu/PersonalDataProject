@@ -5,20 +5,20 @@ import Colors from '../constants/Colors';
 
 export function MonoText(props: Text['props']): React.ReactElement {
   return (
-    <Text {...props} style={[props.style, { fontFamily: 'space-mono' }]} />
+    <Text {...props} style={[{ fontFamily: 'space-mono' }, props.style]} />
   );
 }
 
 export function HeaderText(props: Text['props']): React.ReactElement {
-  return <Text {...props} style={[props.style, styles.header]} />;
+  return <Text {...props} style={[styles.header, props.style]} />;
 }
 
 export function RegularText(props: Text['props']): React.ReactElement {
-  return <Text {...props} style={[props.style, styles.regular]} />;
+  return <Text {...props} style={[styles.regular, props.style]} />;
 }
 
 export function SecondaryText(props: Text['props']): React.ReactElement {
-  return <Text {...props} style={[props.style, styles.secondary]} />;
+  return <Text {...props} style={[styles.secondary, props.style]} />;
 }
 
 const styles = StyleSheet.create({

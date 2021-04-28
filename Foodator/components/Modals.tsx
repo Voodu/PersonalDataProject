@@ -24,14 +24,10 @@ export function BarCodeModal(props: BarCodeModalProps): React.ReactElement {
   }, []);
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    if (props.onScan) {
-      props.onScan(data);
-    }
+    props.onScan && props.onScan(data);
   };
   const handleDismissed = () => {
-    if (props.onDismiss) {
-      props.onDismiss();
-    }
+    props.onDismiss && props.onDismiss();
   };
 
   if (hasPermission === false) {
