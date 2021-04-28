@@ -46,19 +46,21 @@ export function BarCodeModal(props: BarCodeModalProps): React.ReactElement {
   }
 
   return (
-    <View style={styles.centeredView}>
-      <Modal transparent={true} visible={props.visible}>
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <HeaderText>Place barcode in the frame...</HeaderText>
-            {scannerView}
-            <BigButton style={styles.scanButton} onPress={handleDismissed}>
-              Dismiss
-            </BigButton>
-          </View>
+    <Modal
+      style={styles.centeredView}
+      transparent={true}
+      visible={props.visible}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          <HeaderText>Place barcode in the frame...</HeaderText>
+          {scannerView}
+          <BigButton style={styles.scanButton} onPress={handleDismissed}>
+            Dismiss
+          </BigButton>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 }
 
