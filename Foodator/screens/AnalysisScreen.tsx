@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { AnalysisScreenProps } from '../types';
 import {
   VictoryAxis,
@@ -14,6 +14,7 @@ import {
   ChartLayoutConfig,
   ChartDataProcessor,
   ChartDataProcessorConfig,
+  Time,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
 
@@ -29,6 +30,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   );
   return (
     <View style={styles.container}>
+      <Text>{`${Time.currentDay}.${Time.currentMonth}.${Time.currentYear}, week: ${Time.currentWeek}`}</Text>
       <VictoryChart
         theme={VictoryTheme.material}
         domainPadding={30}
@@ -41,11 +43,15 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         <VictoryAxis
           crossAxis
           fixLabelOverlap
-          tickValues={chartLayoutConfig.ticks()}
-          tickFormat={chartLayoutConfig.tickFormatter}
+          tickValues={chartLayoutConfig.xTicks()}
+          tickFormat={chartLayoutConfig.xTickFormatter}
         />
-        <VictoryAxis dependentAxis />
-        <VictoryBar
+        <VictoryAxis
+          dependentAxis
+          fixLabelOverlap
+          tickValues={chartLayoutConfig.yTicks()}
+          tickFormat={chartLayoutConfig.yTickFormatter}
+        />
           data={chartData.data}
           style={{ data: { width: chartLayoutConfig.lineWidth } }}
         />

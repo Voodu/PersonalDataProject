@@ -1,4 +1,4 @@
-import { months, weekdays } from '../other';
+import { Time } from './Time';
 
 type TicksFunction = () => string[];
 type TickFormatter =
@@ -6,47 +6,39 @@ type TickFormatter =
   any[] | { (tick: any, index: number, ticks: any[]): string | number };
 
 export class ChartLayoutConfig {
-  private currentYear: number;
-  private currentMonth: number;
-  private daysInMonth: number;
-
-  public ticks: TicksFunction = () => [];
-  public tickFormatter: TickFormatter = (tick) => tick;
+  public xTicks: TicksFunction = () => [];
+  public yTicks: TicksFunction = () => [];
+  public xTickFormatter: TickFormatter = (tick) => tick;
+  public yTickFormatter: TickFormatter = (tick) => tick;
   public lineWidth = 5;
 
   constructor() {
-    const now = new Date();
-    this.currentYear = now.getFullYear();
-    this.currentMonth = now.getMonth();
-    this.daysInMonth = new Date(
-      this.currentYear,
-      this.currentMonth + 1,
-      0
-    ).getDate();
+    this.yTicks = () => Array.from(Array(24).keys()).map((num) => String(num));
+    this.yTickFormatter = (hour) => `${hour}:00`;
   }
 
   public setYearConfig(): void {
-    this.ticks = () => Object.values(months);
-    this.tickFormatter = (month) => month[0];
+    this.xTicks = () => Object.values(Time.months);
+    this.xTickFormatter = (month) => month[0];
     this.lineWidth = 20;
   }
 
   public setMonthConfig(): void {
-    this.ticks = () =>
-      Array.from({ length: this.daysInMonth }, (_, i) => (i + 1).toString());
-    this.tickFormatter = (day) => day;
+    this.xTicks = () =>
+      Array.from({ length: Time.daysInMonth }, (_, i) => (i + 1).toString());
+    this.xTickFormatter = (day) => day;
     this.lineWidth = 8;
   }
 
   public setWeekConfig(): void {
-    this.ticks = () => weekdays;
-    this.tickFormatter = (weekday) => weekday.substr(0, 3);
+    this.xTicks = () => Time.weekdays;
+    this.xTickFormatter = (weekday) => weekday.substr(0, 3);
     this.lineWidth = 35;
   }
 
   public setDayConfig(): void {
-    this.ticks = () => Array.from(Array(24).keys()).map((num) => String(num));
-    this.tickFormatter = (hour) => hour;
+    this.xTicks = () => Array.from(Array(24).keys()).map((num) => String(num));
+    this.xTickFormatter = (hour) => hour;
     this.lineWidth = 10;
   }
 }

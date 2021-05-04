@@ -1,4 +1,4 @@
-import { getWeekNumber, months, weekdays } from '../other';
+import { Time } from './Time';
 
 type TAgg<T> = {
   [name: number]: T[];
@@ -11,12 +11,6 @@ type AggregateFunction<T> = (items: T[]) => number;
 type GroupFunction<T> = (acc: TAgg<T>, current: T) => TAgg<T>;
 
 export class ChartDataProcessorConfig<T> {
-  private currentYear: number;
-  private currentMonth: number;
-  private currentWeek: number;
-  private currentDay: number;
-  private daysInMonth: number;
-
   public filter: FilterFunction<T> = () => true;
   public groupSelector: GroupSelectorFunction<T> = (items) => items;
   public labelSelector: LabelSelectorFunction = (label) => label;
@@ -28,27 +22,14 @@ export class ChartDataProcessorConfig<T> {
     return acc;
   };
 
-  constructor() {
-    const now = new Date();
-    this.currentYear = now.getFullYear();
-    this.currentMonth = now.getMonth();
-    this.currentWeek = getWeekNumber(now);
-    this.currentDay = now.getDay();
-    this.daysInMonth = new Date(
-      this.currentYear,
-      this.currentMonth + 1,
-      0
-    ).getDate();
-  }
-
   public setYearConfig(
     dateSelector: (item: T) => Date,
     aggregateFunction: AggregateFunction<T>
   ): void {
     this.filter = (item) =>
-      dateSelector(item).getFullYear() === this.currentYear;
+      dateSelector(item).getFullYear() === Time.currentYear;
     this.groupSelector = (current) => dateSelector(current).getMonth();
-    this.labelSelector = (monthIx) => months[+monthIx];
+    this.labelSelector = (monthIx) => Time.months[+monthIx];
     this.aggregate = aggregateFunction;
   }
 
@@ -57,12 +38,12 @@ export class ChartDataProcessorConfig<T> {
     aggregateFunction: AggregateFunction<T>
   ): void {
     this.filter = (item) =>
-      dateSelector(item).getFullYear() === this.currentYear &&
-      dateSelector(item).getMonth() === this.currentMonth;
+      dateSelector(item).getFullYear() === Time.currentYear &&
+      dateSelector(item).getMonth() === Time.currentMonth;
     this.groupSelector = (current) => dateSelector(current).getDate();
     this.labelSelector = (day) => day;
     this.aggregate = aggregateFunction;
-    Array.from({ length: this.daysInMonth }, (_, i) => (i + 1).toString());
+    Array.from({ length: Time.daysInMonth }, (_, i) => (i + 1).toString());
   }
 
   public setWeekConfig(
@@ -70,10 +51,10 @@ export class ChartDataProcessorConfig<T> {
     aggregateFunction: AggregateFunction<T>
   ): void {
     this.filter = (item) =>
-      dateSelector(item).getFullYear() === this.currentYear &&
-      getWeekNumber(dateSelector(item)) === this.currentWeek;
+      dateSelector(item).getFullYear() === Time.currentYear &&
+      Time.getWeekNumber(dateSelector(item)) === Time.currentWeek;
     this.groupSelector = (current) => dateSelector(current).getDay();
-    this.labelSelector = (weekdayIx) => weekdays[+weekdayIx];
+    this.labelSelector = (weekdayIx) => Time.weekdays[+weekdayIx];
     this.aggregate = aggregateFunction;
   }
 
@@ -82,10 +63,10 @@ export class ChartDataProcessorConfig<T> {
     aggregateFunction: AggregateFunction<T>
   ): void {
     this.filter = (item) =>
-      dateSelector(item).getFullYear() === this.currentYear &&
-      dateSelector(item).getMonth() === this.currentMonth &&
-      getWeekNumber(dateSelector(item)) === this.currentWeek &&
-      dateSelector(item).getDay() === this.currentDay;
+      dateSelector(item).getFullYear() === Time.currentYear &&
+      dateSelector(item).getMonth() === Time.currentMonth &&
+      Time.getWeekNumber(dateSelector(item)) === Time.currentWeek &&
+      dateSelector(item).getDay() === Time.currentDay;
     this.groupSelector = (current) => dateSelector(current).getHours();
     this.labelSelector = (hour) => hour;
     this.aggregate = aggregateFunction;
