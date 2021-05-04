@@ -3,7 +3,6 @@ import { StyleSheet, View, Text } from 'react-native';
 import { AnalysisScreenProps } from '../types';
 import {
   VictoryAxis,
-  VictoryBar,
   VictoryChart,
   VictoryScatter,
   VictoryTheme,

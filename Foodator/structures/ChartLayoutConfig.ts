@@ -9,7 +9,8 @@ export class ChartLayoutConfig {
   public lineWidth = 5;
 
   constructor() {
-    this.yTicks = () => Array.from(Array(24).keys()).map((num) => String(num));
+    this.yTicks = () =>
+      Array.from(Array(23).keys()).map((num) => String(num + 1));
     this.yTickFormatter = (hour) => `${hour}:00`;
   }
 

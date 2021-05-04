@@ -1,5 +1,5 @@
 export class Time {
-  public static readonly now = new Date('2021-02-04T23:12');
+  public static readonly now = new Date(2021, 3, 12, 22, 35);
   public static readonly currentYear: number = Time.now.getFullYear();
   public static readonly currentMonth: number = Time.now.getMonth();
   public static readonly currentWeek: number = Time.getWeekNumber(Time.now);

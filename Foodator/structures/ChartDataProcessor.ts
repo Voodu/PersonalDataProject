@@ -1,7 +1,7 @@
 import { ChartDataProcessorConfig } from './ChartDataProcessorConfig';
 
 export class ChartDataProcessor<T> {
-  data: DataPoint[] = [];
+  public data: DataPoint[] = [];
   constructor(config: ChartDataProcessorConfig<T>, values: T[]) {
     const dataInRange = values.filter(config.filter);
     const grouped = dataInRange.reduce(config.group, {});
