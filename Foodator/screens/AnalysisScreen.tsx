@@ -30,13 +30,14 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   );
   return (
     <View style={styles.container}>
-      <Text>{`${Time.currentDay}.${Time.currentMonth}.${Time.currentYear}, week: ${Time.currentWeek}`}</Text>
+      <Text>{chartLayoutConfig.title}</Text>
       <VictoryChart
+        height={400}
         theme={VictoryTheme.material}
         domainPadding={30}
         containerComponent={
           <VictoryVoronoiContainer
-            labels={({ datum }) => `${datum.x}, ${datum.y}`}
+            labels={({ datum }) => `${datum.x}, ${getHourClock(datum.y)}`}
           />
         }
       >
@@ -100,6 +101,6 @@ function getChartConfigs(mode: string) {
     default:
       break;
   }
-  dataProcessorConfig.groupSelector = (current) => current.datetime.getHours();
+
   return { dataProcessorConfig, chartLayoutConfig };
 }
