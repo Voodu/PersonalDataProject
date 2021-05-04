@@ -1,9 +1,5 @@
 import { Time } from './Time';
-
-type TicksFunction = () => string[];
-type TickFormatter =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any[] | { (tick: any, index: number, ticks: any[]): string | number };
+import { TicksFunction, TickFormatter } from './types';
 
 export class ChartLayoutConfig {
   public xTicks: TicksFunction = () => [];

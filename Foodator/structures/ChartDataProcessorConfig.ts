@@ -1,14 +1,11 @@
 import { Time } from './Time';
-
-type TAgg<T> = {
-  [name: number]: T[];
-};
-type FilterFunction<T> = (item: T) => boolean;
-type LabelSelectorFunction = (label: string) => string;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type GroupSelectorFunction<T> = (current: T) => number | string | any;
-type AggregateFunction<T> = (items: T[]) => number;
-type GroupFunction<T> = (acc: TAgg<T>, current: T) => TAgg<T>;
+import {
+  FilterFunction,
+  GroupSelectorFunction,
+  LabelSelectorFunction,
+  AggregateFunction,
+  GroupFunction,
+} from './types';
 
 export class ChartDataProcessorConfig<T> {
   public filter: FilterFunction<T> = () => true;
@@ -16,7 +13,7 @@ export class ChartDataProcessorConfig<T> {
   public labelSelector: LabelSelectorFunction = (label) => label;
   public aggregate: AggregateFunction<T> = () => 0;
 
-  public group: GroupFunction<T> = (acc: TAgg<T>, current: T) => {
+  public group: GroupFunction<T> = (acc, current) => {
     const i = this.groupSelector(current);
     acc[i] = acc[i] ? acc[i].concat(current) : [current];
     return acc;
