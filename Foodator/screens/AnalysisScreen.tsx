@@ -17,15 +17,25 @@ import {
   ChartDataPoint,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
+import { RegularText, SmallButton } from '../components';
 
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
-  const mode: 'week' | 'month' | 'year' = 'week';
-  const {
-    dataConfig: mealDataConfig,
-    layoutConfig: mealChartLayoutConfig,
-  } = getMealChartConfigs(mode);
+  const configs = generateMealChartConfigs('week');
+  const [mealDataConfig, setMealDataConfig] = React.useState(
+    configs.dataConfig
+  );
+  const [mealChartLayoutConfig, setMealChartLayoutConfig] = React.useState(
+    configs.layoutConfig
+  );
+
+  const setView = (mode: string) => {
+    const configs = generateMealChartConfigs(mode);
+    setMealDataConfig(configs.dataConfig);
+    setMealChartLayoutConfig(configs.layoutConfig);
+    console.log('changed view to', mode);
+  };
 
   const mealChartData = new ChartDataProcessor<
     MealHistoryEntry,
@@ -33,8 +43,31 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   >(mealDataConfig, mealRawData.values);
   return (
     <View style={styles.container}>
-      <Text>{mealChartLayoutConfig.title}</Text>
+      <View style={styles.topContainer}>
+        <RegularText style={styles.titleText}>
+          {mealChartLayoutConfig.title}
+        </RegularText>
+        <SmallButton
+          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+          onPress={() => setView('week')}
+        >
+          Week
+        </SmallButton>
+        <SmallButton
+          style={{ borderRadius: 0 }}
+          onPress={() => setView('month')}
+        >
+          Month
+        </SmallButton>
+        <SmallButton
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          onPress={() => setView('year')}
+        >
+          Year
+        </SmallButton>
+      </View>
       <VictoryChart
+        padding={{ left: 50, right: 50, top: 10, bottom: 50 }}
         height={400}
         theme={VictoryTheme.material}
         domainPadding={30}
@@ -77,13 +110,22 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5fcff',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  topContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '85%',
+  },
+  titleText: {
+    textAlign: 'center',
+    width: '100%',
+    marginBottom: 20,
   },
 });
 
-function getMealChartConfigs(mode: string) {
+function generateMealChartConfigs(mode: string) {
   const layoutConfig = new ChartLayoutConfig();
   const dataConfig = new ChartDataProcessorConfig<
     MealHistoryEntry,

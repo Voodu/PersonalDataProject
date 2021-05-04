@@ -8,14 +8,14 @@ export function BigButton(
   return (
     <TouchableOpacity
       onPress={props.onPress}
-      style={[styles.button, props.style]}
+      style={[stylesBig.button, props.style]}
     >
-      <Text style={styles.text}>{props.children}</Text>
+      <Text style={stylesBig.text}>{props.children}</Text>
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const stylesBig = StyleSheet.create({
   button: {
     display: 'flex',
     flexDirection: 'row',
@@ -28,6 +28,36 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 24,
+    color: Colors.light.white,
+  },
+});
+
+export function SmallButton(
+  props: Text['props'] | TouchableOpacity['props']
+): React.ReactElement {
+  return (
+    <TouchableOpacity
+      onPress={props.onPress}
+      style={[stylesSmall.button, props.style]}
+    >
+      <Text style={stylesSmall.text}>{props.children}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const stylesSmall = StyleSheet.create({
+  button: {
+    display: 'flex',
+    flexGrow: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+    backgroundColor: Colors.light.redBad,
+    borderRadius: 15,
+  },
+  text: {
+    fontSize: 18,
     color: Colors.light.white,
   },
 });
