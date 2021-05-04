@@ -5,11 +5,12 @@ import {
   VictoryAxis,
   VictoryBar,
   VictoryChart,
+  VictoryScatter,
   VictoryTheme,
   VictoryVoronoiContainer,
 } from 'victory-native';
-import { dateTimeReviver, mockRootData } from '../other';
-import { Root } from '../models/collections';
+import { dateTimeReviver, mealHistoryMock } from '../other';
+import { MealHistory } from '../models/collections';
 import {
   ChartLayoutConfig,
   ChartDataProcessor,
@@ -18,15 +19,15 @@ import {
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
 
-const rawData: Root = JSON.parse(mockRootData, dateTimeReviver);
+const rawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
-  const mode: 'day' | 'week' | 'month' | 'year' = 'day';
+  const mode: 'day' | 'week' | 'month' | 'year' = 'month';
   const { dataProcessorConfig, chartLayoutConfig } = getChartConfigs(mode);
 
   const chartData = new ChartDataProcessor<MealHistoryEntry>(
     dataProcessorConfig,
-    rawData.mealHistory.values
+    rawData.values
   );
   return (
     <View style={styles.container}>
@@ -52,6 +53,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
           tickValues={chartLayoutConfig.yTicks()}
           tickFormat={chartLayoutConfig.yTickFormatter}
         />
+        <VictoryScatter
           data={chartData.data}
           style={{ data: { width: chartLayoutConfig.lineWidth } }}
         />
@@ -77,27 +79,28 @@ const styles = StyleSheet.create({
 function getChartConfigs(mode: string) {
   const chartLayoutConfig = new ChartLayoutConfig();
   const dataProcessorConfig = new ChartDataProcessorConfig<MealHistoryEntry>();
-  const selector = (m: MealHistoryEntry) => m.datetime;
-  const aggregate = dataProcessorConfig.sumAggregate((m) => m.food.length);
+  const dateSelector = (m: MealHistoryEntry) => m.datetime;
+  const aggregate = dataProcessorConfig.sumAggregate((m) => m.values.length);
   switch (mode) {
     case 'year':
       chartLayoutConfig.setYearConfig();
-      dataProcessorConfig.setYearConfig(selector, aggregate);
+      dataProcessorConfig.setYearConfig(dateSelector, aggregate);
       break;
     case 'month':
       chartLayoutConfig.setMonthConfig();
-      dataProcessorConfig.setMonthConfig(selector, aggregate);
+      dataProcessorConfig.setMonthConfig(dateSelector, aggregate);
       break;
     case 'week':
       chartLayoutConfig.setWeekConfig();
-      dataProcessorConfig.setWeekConfig(selector, aggregate);
+      dataProcessorConfig.setWeekConfig(dateSelector, aggregate);
       break;
     case 'day':
       chartLayoutConfig.setDayConfig();
-      dataProcessorConfig.setDayConfig(selector, aggregate);
+      dataProcessorConfig.setDayConfig(dateSelector, aggregate);
       break;
     default:
       break;
   }
+  dataProcessorConfig.groupSelector = (current) => current.datetime.getHours();
   return { dataProcessorConfig, chartLayoutConfig };
 }
