@@ -7,7 +7,8 @@ export class ChartLayoutConfig {
   public yTicks: TicksFunction = () => [];
   public xTickFormatter: TickFormatter = (tick) => tick;
   public yTickFormatter: TickFormatter = (tick) => tick;
-  public lineWidth = 5;
+  public dataSize = 5;
+  private jitterMagnitude = {x: 5, y: 5};
 
   constructor() {
     this.yTicks = () =>
@@ -18,22 +19,37 @@ export class ChartLayoutConfig {
   public setYearConfig(): void {
     this.xTicks = () => Object.values(Time.months);
     this.xTickFormatter = (month) => month[0];
-    this.lineWidth = 20;
+    this.dataSize = 3;
     this.title = `Year ${Time.currentYear}`;
+    this.jitterMagnitude = {x: 5, y: 0};
   }
 
   public setMonthConfig(): void {
     this.xTicks = () =>
       Array.from({ length: Time.daysInMonth }, (_, i) => (i + 1).toString());
     this.xTickFormatter = (day) => day;
-    this.lineWidth = 8;
+    this.dataSize = 3;
     this.title = `${Time.months[Time.currentMonth]}, ${Time.currentYear}`;
+    this.jitterMagnitude = {x: 3, y: 3};
   }
 
   public setWeekConfig(): void {
     this.xTicks = () => Time.weekdays;
     this.xTickFormatter = (weekday) => weekday.substr(0, 3);
-    this.lineWidth = 35;
+    this.dataSize = 4;
     this.title = `Week ${Time.currentWeek}, ${Time.currentYear}`;
+    this.jitterMagnitude = {x: 10, y: 5};
+  }
+
+  public jitterX(): number {
+    const [min, max] = [-this.jitterMagnitude.x, this.jitterMagnitude.x];
+    const range = max - min;
+    return Math.random() * range - max;
+  }
+
+  public jitterY(): number {
+    const [min, max] = [-this.jitterMagnitude.y, this.jitterMagnitude.y];
+    const range = max - min;
+    return Math.random() * range - max;
   }
 }

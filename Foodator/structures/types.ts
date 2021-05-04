@@ -1,15 +1,19 @@
 export type Accumulator<T> = {
   [name: number]: T[];
 };
-export type FilterFunction<T> = (item: T) => boolean;
+export type FilterFunction<TRaw> = (item: TRaw) => boolean;
 export type LabelSelectorFunction = (label: string) => string;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type GroupSelectorFunction<T> = (current: T) => number | string | any;
-export type AggregateFunction<T> = (items: T[]) => number | number[];
-export type GroupFunction<T> = (
-  acc: Accumulator<T>,
-  current: T
-) => Accumulator<T>;
+export type GroupSelectorFunction<TRaw> = (
+  current: TRaw
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+) => number | string | any;
+export type AggregateFunction<TRaw, TPlotted> = (
+  items: TRaw[]
+) => TPlotted | TPlotted[];
+export type GroupFunction<TRaw> = (
+  acc: Accumulator<TRaw>,
+  current: TRaw
+) => Accumulator<TRaw>;
 
 export type TicksFunction = () => string[];
 export type TickFormatter =

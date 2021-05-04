@@ -7,21 +7,21 @@ import {
   GroupFunction,
 } from './types';
 
-export class ChartDataProcessorConfig<T> {
-  public filter: FilterFunction<T> = () => true;
-  public groupSelector: GroupSelectorFunction<T> = (items) => items;
+export class ChartDataProcessorConfig<TRaw, TPlotted> {
+  public filter: FilterFunction<TRaw> = () => true;
+  public groupSelector: GroupSelectorFunction<TRaw> = (items) => items;
   public labelSelector: LabelSelectorFunction = (label) => label;
-  public aggregate: AggregateFunction<T> = () => 0;
+  public aggregate: AggregateFunction<TRaw, TPlotted> = () => [];
 
-  public group: GroupFunction<T> = (acc, current) => {
+  public group: GroupFunction<TRaw> = (acc, current) => {
     const i = this.groupSelector(current);
     acc[i] = acc[i] ? acc[i].concat(current) : [current];
     return acc;
   };
 
   public setYearConfig(
-    dateSelector: (item: T) => Date,
-    aggregateFunction: AggregateFunction<T>
+    dateSelector: (item: TRaw) => Date,
+    aggregateFunction: AggregateFunction<TRaw, TPlotted>
   ): void {
     this.filter = (item) =>
       dateSelector(item).getFullYear() === Time.currentYear;
@@ -31,8 +31,8 @@ export class ChartDataProcessorConfig<T> {
   }
 
   public setMonthConfig(
-    dateSelector: (item: T) => Date,
-    aggregateFunction: AggregateFunction<T>
+    dateSelector: (item: TRaw) => Date,
+    aggregateFunction: AggregateFunction<TRaw, TPlotted>
   ): void {
     this.filter = (item) =>
       dateSelector(item).getFullYear() === Time.currentYear &&
@@ -44,8 +44,8 @@ export class ChartDataProcessorConfig<T> {
   }
 
   public setWeekConfig(
-    dateSelector: (item: T) => Date,
-    aggregateFunction: AggregateFunction<T>
+    dateSelector: (item: TRaw) => Date,
+    aggregateFunction: AggregateFunction<TRaw, TPlotted>
   ): void {
     this.filter = (item) =>
       dateSelector(item).getFullYear() === Time.currentYear &&
@@ -56,17 +56,17 @@ export class ChartDataProcessorConfig<T> {
   }
 
   public sumAggregate = (
-    selector: (item: T) => number
+    selector: (item: TRaw) => number
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): ((items: T[]) => any) => {
-    return (items: T[]): number =>
+  ): ((items: TRaw[]) => any) => {
+    return (items: TRaw[]): number =>
       items.reduce((sum, current) => sum + selector(current), 0);
   };
 
   public valueAggregate = (
-    selector: (item: T) => number | number[]
+    selector: (item: TRaw) => TPlotted | TPlotted[]
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ): ((items: T[]) => any) => {
+  ): ((items: TRaw[]) => any) => {
     return (items) => items.map((current) => selector(current));
   };
 }

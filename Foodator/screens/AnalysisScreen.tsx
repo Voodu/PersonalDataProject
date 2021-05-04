@@ -6,7 +6,6 @@ import {
   VictoryChart,
   VictoryScatter,
   VictoryTheme,
-  VictoryVoronoiContainer,
 } from 'victory-native';
 import { dateTimeReviver, mealHistoryMock } from '../other';
 import { MealHistory } from '../models/collections';
@@ -14,22 +13,24 @@ import {
   ChartLayoutConfig,
   ChartDataProcessor,
   ChartDataProcessorConfig,
+  ColorPicker,
+  ChartDataPoint,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
 
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
-  const mode: 'week' | 'month' | 'year' = 'month';
+  const mode: 'week' | 'month' | 'year' = 'week';
   const {
-    processorConfig: mealDataProcessorConfig,
+    dataConfig: mealDataConfig,
     layoutConfig: mealChartLayoutConfig,
-  } = getChartConfigs(mode);
+  } = getMealChartConfigs(mode);
 
-  const mealChartData = new ChartDataProcessor<MealHistoryEntry>(
-    mealDataProcessorConfig,
-    mealRawData.values
-  );
+  const mealChartData = new ChartDataProcessor<
+    MealHistoryEntry,
+    ChartDataPoint
+  >(mealDataConfig, mealRawData.values);
   return (
     <View style={styles.container}>
       <Text>{mealChartLayoutConfig.title}</Text>
@@ -37,11 +38,6 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         height={400}
         theme={VictoryTheme.material}
         domainPadding={30}
-        containerComponent={
-          <VictoryVoronoiContainer
-            labels={({ datum }) => `${datum.x}, ${getHourClock(datum.y)}`}
-          />
-        }
       >
         <VictoryAxis
           crossAxis
@@ -57,8 +53,16 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         />
         <VictoryScatter
           data={mealChartData.data}
-          style={{ data: { width: mealChartLayoutConfig.lineWidth } }}
-          // y="y.time"
+          x="x"
+          y="y.time"
+          size={mealChartLayoutConfig.dataSize}
+          style={{
+            data: {
+              fill: ({ datum }) => ColorPicker.getColor(datum.y.foodId),
+              transform: ({}) =>
+                `translate(${mealChartLayoutConfig.jitterX()}, ${mealChartLayoutConfig.jitterY()})`,
+            },
+          }}
         />
       </VictoryChart>
     </View>
@@ -79,42 +83,39 @@ const styles = StyleSheet.create({
   },
 });
 
-function getChartConfigs(mode: string) {
+function getMealChartConfigs(mode: string) {
   const layoutConfig = new ChartLayoutConfig();
-  const processorConfig = new ChartDataProcessorConfig<MealHistoryEntry>();
+  const dataConfig = new ChartDataProcessorConfig<
+    MealHistoryEntry,
+    ChartDataPoint
+  >();
   const dateSelector = (m: MealHistoryEntry) => m.datetime;
-  const aggregate = processorConfig.valueAggregate((m) =>
-    m.values.map(() => m.datetime.getHours() + m.datetime.getMinutes() / 60)
+  const aggregate = dataConfig.valueAggregate((m) =>
+    m.values.map((food) => {
+      const time = m.datetime.getHours() + m.datetime.getMinutes() / 60;
+      return { time, foodId: food.foodId };
+    })
   );
 
   switch (mode) {
     case 'year':
       layoutConfig.setYearConfig();
-      processorConfig.setYearConfig(dateSelector, aggregate);
+      dataConfig.setYearConfig(dateSelector, aggregate);
       break;
     case 'month':
       layoutConfig.setMonthConfig();
-      processorConfig.setMonthConfig(dateSelector, aggregate);
+      dataConfig.setMonthConfig(dateSelector, aggregate);
       break;
     case 'week':
       layoutConfig.setWeekConfig();
-      processorConfig.setWeekConfig(dateSelector, aggregate);
+      dataConfig.setWeekConfig(dateSelector, aggregate);
       break;
     default:
       break;
   }
 
   return {
-    processorConfig,
+    dataConfig,
     layoutConfig,
   };
-}
-
-function getHourClock(hourDecimal: number): string {
-  return `${Math.floor(hourDecimal)}:${(
-    (hourDecimal - Math.floor(hourDecimal)) *
-    60
-  )
-    .toFixed(0)
-    .padStart(2, '0')}`;
 }
