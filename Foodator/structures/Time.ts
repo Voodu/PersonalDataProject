@@ -1,14 +1,23 @@
 export class Time {
-  public static readonly now = new Date(2021, 3, 12, 22, 35);
-  public static readonly currentYear: number = Time.now.getFullYear();
-  public static readonly currentMonth: number = Time.now.getMonth();
-  public static readonly currentWeek: number = Time.getWeekNumber(Time.now);
-  public static readonly currentDay: number = Time.now.getDay();
-  public static readonly daysInMonth: number = new Date(
-    Time.currentYear,
-    Time.currentMonth + 1,
-    0
-  ).getDate();
+  public now: Date;
+  public currentYear: number;
+  public currentMonth: number;
+  public currentWeek: number;
+  public currentDay: number;
+  public daysInMonth: number;
+
+  constructor(now: Date) {
+    this.now = now;
+    this.currentYear = this.now.getFullYear();
+    this.currentMonth = this.now.getMonth();
+    this.currentWeek = Time.getWeekNumber(this.now);
+    this.currentDay = this.now.getDay();
+    this.daysInMonth = new Date(
+      this.currentYear,
+      this.currentMonth + 1,
+      0
+    ).getDate();
+  }
 
   public static readonly months = [
     'January',
@@ -49,5 +58,44 @@ export class Time {
     const weekNo = Math.ceil(((+date - +yearStart) / 86400000 + 1) / 7);
     // Return array of year and week number
     return weekNo;
+  }
+
+  public changeYear(diff: -1 | 0 | 1): void {
+    this.addDays(diff * this.daysInYear(this.currentYear));
+    this.refreshProps();
+  }
+
+  public changeMonth(diff: -1 | 0 | 1): void {
+    this.addDays(diff * this.daysInMonth);
+    this.refreshProps();
+  }
+
+  public changeWeek(diff: -1 | 0 | 1): void {
+    this.addDays(diff * 7);
+    this.refreshProps();
+  }
+
+  private addDays(days: number) {
+    this.now.setDate(this.now.getDate() + days);
+  }
+
+  private isLeapYear(year: number): boolean {
+    return year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0);
+  }
+
+  private daysInYear(year: number): number {
+    return this.isLeapYear(year) ? 366 : 365;
+  }
+
+  private refreshProps() {
+    this.currentYear = this.now.getFullYear();
+    this.currentMonth = this.now.getMonth();
+    this.currentWeek = Time.getWeekNumber(this.now);
+    this.currentDay = this.now.getDay();
+    this.daysInMonth = new Date(
+      this.currentYear,
+      this.currentMonth + 1,
+      0
+    ).getDate();
   }
 }

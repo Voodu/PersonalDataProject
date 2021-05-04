@@ -2,6 +2,7 @@ import { Time } from './Time';
 import { TicksFunction, TickFormatter } from './types';
 
 export class ChartLayoutConfig {
+  public time: Time;
   public title = 'No title';
   public xTicks: TicksFunction = () => [];
   public yTicks: TicksFunction = () => [];
@@ -10,7 +11,8 @@ export class ChartLayoutConfig {
   public dataSize = 5;
   private jitterMagnitude = { x: 5, y: 5 };
 
-  constructor() {
+  constructor(time: Time) {
+    this.time = time;
     this.yTicks = () =>
       Array.from(Array(23).keys()).map((num) => String(num + 1));
     this.yTickFormatter = (hour) => `${hour}:00`;
@@ -20,16 +22,20 @@ export class ChartLayoutConfig {
     this.xTicks = () => Object.values(Time.months);
     this.xTickFormatter = (month) => month[0];
     this.dataSize = 3;
-    this.title = `Year ${Time.currentYear}`;
+    this.title = `Year ${this.time.currentYear}`;
     this.jitterMagnitude = { x: 5, y: 0 };
   }
 
   public setMonthConfig(): void {
     this.xTicks = () =>
-      Array.from({ length: Time.daysInMonth }, (_, i) => (i + 1).toString());
+      Array.from({ length: this.time.daysInMonth }, (_, i) =>
+        (i + 1).toString()
+      );
     this.xTickFormatter = (day) => day;
     this.dataSize = 3;
-    this.title = `${Time.months[Time.currentMonth]}, ${Time.currentYear}`;
+    this.title = `${Time.months[this.time.currentMonth]}, ${
+      this.time.currentYear
+    }`;
     this.jitterMagnitude = { x: 3, y: 3 };
   }
 
@@ -37,7 +43,7 @@ export class ChartLayoutConfig {
     this.xTicks = () => Time.weekdays;
     this.xTickFormatter = (weekday) => weekday.substr(0, 3);
     this.dataSize = 4;
-    this.title = `Week ${Time.currentWeek}, ${Time.currentYear}`;
+    this.title = `Week ${this.time.currentWeek}, ${this.time.currentYear}`;
     this.jitterMagnitude = { x: 10, y: 5 };
   }
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 import { AnalysisScreenProps } from '../types';
 import {
   VictoryAxis,
@@ -15,6 +16,7 @@ import {
   ChartDataProcessorConfig,
   ColorPicker,
   ChartDataPoint,
+  Time,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
 import { RegularText, SmallButton } from '../components';
@@ -22,7 +24,9 @@ import { RegularText, SmallButton } from '../components';
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
-  const configs = generateMealChartConfigs('week');
+  const [time] = React.useState(new Time(new Date(2021, 3, 12, 22, 35)));
+  const [mode, setMode] = React.useState('week');
+  const configs = generateMealChartConfigs(mode, time);
   const [mealDataConfig, setMealDataConfig] = React.useState(
     configs.dataConfig
   );
@@ -31,9 +35,27 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   );
 
   const setView = (mode: string) => {
-    const configs = generateMealChartConfigs(mode);
+    setMode(mode);
+    const configs = generateMealChartConfigs(mode, time);
     setMealDataConfig(configs.dataConfig);
     setMealChartLayoutConfig(configs.layoutConfig);
+  };
+
+  const changeDate = (diff: -1 | 0 | 1) => {
+    switch (mode) {
+      case 'week':
+        time.changeWeek(diff);
+        setView(mode);
+        break;
+      case 'month':
+        time.changeMonth(diff);
+        setView(mode);
+        break;
+      case 'year':
+        time.changeYear(diff);
+        setView(mode);
+        break;
+    }
   };
 
   const mealChartData = new ChartDataProcessor<
@@ -48,6 +70,12 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         </RegularText>
         <SmallButton
           style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+          onPress={() => changeDate(-1)}
+        >
+          <AntDesign name="left" size={16} color="white" />
+        </SmallButton>
+        <SmallButton
+          style={{ borderRadius: 0 }}
           onPress={() => setView('week')}
         >
           Week
@@ -59,10 +87,16 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
           Month
         </SmallButton>
         <SmallButton
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          style={{ borderRadius: 0 }}
           onPress={() => setView('year')}
         >
           Year
+        </SmallButton>
+        <SmallButton
+          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          onPress={() => changeDate(1)}
+        >
+          <AntDesign name="right" size={16} color="white" />
         </SmallButton>
       </View>
       <VictoryChart
@@ -115,7 +149,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '85%',
+    width: '90%',
   },
   titleText: {
     textAlign: 'center',
@@ -124,12 +158,12 @@ const styles = StyleSheet.create({
   },
 });
 
-function generateMealChartConfigs(mode: string) {
-  const layoutConfig = new ChartLayoutConfig();
+function generateMealChartConfigs(mode: string, time: Time) {
+  const layoutConfig = new ChartLayoutConfig(time);
   const dataConfig = new ChartDataProcessorConfig<
     MealHistoryEntry,
     ChartDataPoint
-  >();
+  >(time);
   const dateSelector = (m: MealHistoryEntry) => m.datetime;
   const aggregate = dataConfig.valueAggregate((m) =>
     m.values.map((food) => {
