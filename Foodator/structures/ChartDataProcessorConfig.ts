@@ -76,4 +76,11 @@ export class ChartDataProcessorConfig<T> {
     return (items: T[]): number =>
       items.reduce((sum, current) => sum + selector(current), 0);
   };
+
+  public valueAggregate = (
+    selector: (item: T) => number | number[]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ): ((items: T[]) => any) => {
+    return (items) => items.map((current) => selector(current));
+  };
 }

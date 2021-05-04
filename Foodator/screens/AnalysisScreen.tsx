@@ -14,23 +14,25 @@ import {
   ChartLayoutConfig,
   ChartDataProcessor,
   ChartDataProcessorConfig,
-  Time,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
 
-const rawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
+const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   const mode: 'day' | 'week' | 'month' | 'year' = 'month';
-  const { dataProcessorConfig, chartLayoutConfig } = getChartConfigs(mode);
+  const {
+    processorConfig: mealDataProcessorConfig,
+    layoutConfig: mealChartLayoutConfig,
+  } = getChartConfigs(mode);
 
-  const chartData = new ChartDataProcessor<MealHistoryEntry>(
-    dataProcessorConfig,
-    rawData.values
+  const mealChartData = new ChartDataProcessor<MealHistoryEntry>(
+    mealDataProcessorConfig,
+    mealRawData.values
   );
   return (
     <View style={styles.container}>
-      <Text>{chartLayoutConfig.title}</Text>
+      <Text>{mealChartLayoutConfig.title}</Text>
       <VictoryChart
         height={400}
         theme={VictoryTheme.material}
@@ -44,18 +46,19 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         <VictoryAxis
           crossAxis
           fixLabelOverlap
-          tickValues={chartLayoutConfig.xTicks()}
-          tickFormat={chartLayoutConfig.xTickFormatter}
+          tickValues={mealChartLayoutConfig.xTicks()}
+          tickFormat={mealChartLayoutConfig.xTickFormatter}
         />
         <VictoryAxis
           dependentAxis
           fixLabelOverlap
-          tickValues={chartLayoutConfig.yTicks()}
-          tickFormat={chartLayoutConfig.yTickFormatter}
+          tickValues={mealChartLayoutConfig.yTicks()}
+          tickFormat={mealChartLayoutConfig.yTickFormatter}
         />
         <VictoryScatter
-          data={chartData.data}
-          style={{ data: { width: chartLayoutConfig.lineWidth } }}
+          data={mealChartData.data}
+          style={{ data: { width: mealChartLayoutConfig.lineWidth } }}
+          // y="y.time"
         />
       </VictoryChart>
     </View>
@@ -77,30 +80,45 @@ const styles = StyleSheet.create({
 });
 
 function getChartConfigs(mode: string) {
-  const chartLayoutConfig = new ChartLayoutConfig();
-  const dataProcessorConfig = new ChartDataProcessorConfig<MealHistoryEntry>();
+  const layoutConfig = new ChartLayoutConfig();
+  const processorConfig = new ChartDataProcessorConfig<MealHistoryEntry>();
   const dateSelector = (m: MealHistoryEntry) => m.datetime;
-  const aggregate = dataProcessorConfig.sumAggregate((m) => m.values.length);
+  const aggregate = processorConfig.valueAggregate((m) =>
+    m.values.map(() => m.datetime.getHours() + m.datetime.getMinutes() / 60)
+  );
+
   switch (mode) {
     case 'year':
-      chartLayoutConfig.setYearConfig();
-      dataProcessorConfig.setYearConfig(dateSelector, aggregate);
+      layoutConfig.setYearConfig();
+      processorConfig.setYearConfig(dateSelector, aggregate);
       break;
     case 'month':
-      chartLayoutConfig.setMonthConfig();
-      dataProcessorConfig.setMonthConfig(dateSelector, aggregate);
+      layoutConfig.setMonthConfig();
+      processorConfig.setMonthConfig(dateSelector, aggregate);
       break;
     case 'week':
-      chartLayoutConfig.setWeekConfig();
-      dataProcessorConfig.setWeekConfig(dateSelector, aggregate);
+      layoutConfig.setWeekConfig();
+      processorConfig.setWeekConfig(dateSelector, aggregate);
       break;
     case 'day':
-      chartLayoutConfig.setDayConfig();
-      dataProcessorConfig.setDayConfig(dateSelector, aggregate);
+      layoutConfig.setDayConfig();
+      processorConfig.setDayConfig(dateSelector, aggregate);
       break;
     default:
       break;
   }
 
-  return { dataProcessorConfig, chartLayoutConfig };
+  return {
+    processorConfig,
+    layoutConfig,
+  };
+}
+
+function getHourClock(hourDecimal: number): string {
+  return `${Math.floor(hourDecimal)}:${(
+    (hourDecimal - Math.floor(hourDecimal)) *
+    60
+  )
+    .toFixed(0)
+    .padStart(2, '0')}`;
 }
