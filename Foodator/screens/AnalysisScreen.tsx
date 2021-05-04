@@ -20,7 +20,7 @@ import { MealHistoryEntry } from '../models/entities';
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
-  const mode: 'day' | 'week' | 'month' | 'year' = 'month';
+  const mode: 'week' | 'month' | 'year' = 'month';
   const {
     processorConfig: mealDataProcessorConfig,
     layoutConfig: mealChartLayoutConfig,
@@ -99,10 +99,6 @@ function getChartConfigs(mode: string) {
     case 'week':
       layoutConfig.setWeekConfig();
       processorConfig.setWeekConfig(dateSelector, aggregate);
-      break;
-    case 'day':
-      layoutConfig.setDayConfig();
-      processorConfig.setDayConfig(dateSelector, aggregate);
       break;
     default:
       break;

@@ -36,11 +36,4 @@ export class ChartLayoutConfig {
     this.lineWidth = 35;
     this.title = `Week ${Time.currentWeek}, ${Time.currentYear}`;
   }
-
-  public setDayConfig(): void {
-    this.xTicks = () => Array.from(Array(24).keys()).map((num) => String(num));
-    this.xTickFormatter = (hour) => hour;
-    this.lineWidth = 10;
-    this.title = `${Time.currentDay}.${Time.currentMonth}.${Time.currentYear}`;
-  }
 }

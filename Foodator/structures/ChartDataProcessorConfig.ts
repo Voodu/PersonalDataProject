@@ -55,20 +55,6 @@ export class ChartDataProcessorConfig<T> {
     this.aggregate = aggregateFunction;
   }
 
-  public setDayConfig(
-    dateSelector: (item: T) => Date,
-    aggregateFunction: AggregateFunction<T>
-  ): void {
-    this.filter = (item) =>
-      dateSelector(item).getFullYear() === Time.currentYear &&
-      dateSelector(item).getMonth() === Time.currentMonth &&
-      Time.getWeekNumber(dateSelector(item)) === Time.currentWeek &&
-      dateSelector(item).getDay() === Time.currentDay;
-    this.groupSelector = (current) => dateSelector(current).getHours();
-    this.labelSelector = (hour) => hour;
-    this.aggregate = aggregateFunction;
-  }
-
   public sumAggregate = (
     selector: (item: T) => number
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
