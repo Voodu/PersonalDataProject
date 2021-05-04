@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { AnalysisScreenProps } from '../types';
 import {
   VictoryAxis,
@@ -34,7 +34,6 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     const configs = generateMealChartConfigs(mode);
     setMealDataConfig(configs.dataConfig);
     setMealChartLayoutConfig(configs.layoutConfig);
-    console.log('changed view to', mode);
   };
 
   const mealChartData = new ChartDataProcessor<

@@ -8,7 +8,7 @@ export class ChartLayoutConfig {
   public xTickFormatter: TickFormatter = (tick) => tick;
   public yTickFormatter: TickFormatter = (tick) => tick;
   public dataSize = 5;
-  private jitterMagnitude = {x: 5, y: 5};
+  private jitterMagnitude = { x: 5, y: 5 };
 
   constructor() {
     this.yTicks = () =>
@@ -21,7 +21,7 @@ export class ChartLayoutConfig {
     this.xTickFormatter = (month) => month[0];
     this.dataSize = 3;
     this.title = `Year ${Time.currentYear}`;
-    this.jitterMagnitude = {x: 5, y: 0};
+    this.jitterMagnitude = { x: 5, y: 0 };
   }
 
   public setMonthConfig(): void {
@@ -30,7 +30,7 @@ export class ChartLayoutConfig {
     this.xTickFormatter = (day) => day;
     this.dataSize = 3;
     this.title = `${Time.months[Time.currentMonth]}, ${Time.currentYear}`;
-    this.jitterMagnitude = {x: 3, y: 3};
+    this.jitterMagnitude = { x: 3, y: 3 };
   }
 
   public setWeekConfig(): void {
@@ -38,7 +38,7 @@ export class ChartLayoutConfig {
     this.xTickFormatter = (weekday) => weekday.substr(0, 3);
     this.dataSize = 4;
     this.title = `Week ${Time.currentWeek}, ${Time.currentYear}`;
-    this.jitterMagnitude = {x: 10, y: 5};
+    this.jitterMagnitude = { x: 10, y: 5 };
   }
 
   public jitterX(): number {
