@@ -24,6 +24,7 @@ import { RegularText, SmallButton } from '../components';
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
+  // TODO: Use current date
   const [time] = React.useState(new Time(new Date(2021, 3, 12, 22, 35)));
   const [mode, setMode] = React.useState('week');
   const configs = generateMealChartConfigs(mode, time);
@@ -63,85 +64,89 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     ChartDataPoint
   >(mealDataConfig, mealRawData.values);
   return (
-    <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <RegularText style={styles.titleText}>
-          {mealChartLayoutConfig.title}
-        </RegularText>
-        <SmallButton
-          style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-          onPress={() => changeDate(-1)}
+    <View style={styles.mainContainer}>
+      <View style={styles.chartContainer}>
+        <View style={styles.topContainer}>
+          <RegularText style={styles.titleText}>
+            {mealChartLayoutConfig.title}
+          </RegularText>
+          <SmallButton
+            style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+            onPress={() => changeDate(-1)}
+          >
+            <AntDesign name="left" size={16} color="white" />
+          </SmallButton>
+          <SmallButton
+            style={{ borderRadius: 0 }}
+            onPress={() => setView('week')}
+          >
+            Week
+          </SmallButton>
+          <SmallButton
+            style={{ borderRadius: 0 }}
+            onPress={() => setView('month')}
+          >
+            Month
+          </SmallButton>
+          <SmallButton
+            style={{ borderRadius: 0 }}
+            onPress={() => setView('year')}
+          >
+            Year
+          </SmallButton>
+          <SmallButton
+            style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+            onPress={() => changeDate(1)}
+          >
+            <AntDesign name="right" size={16} color="white" />
+          </SmallButton>
+        </View>
+        <VictoryChart
+          padding={{ left: 50, right: 50, top: 10, bottom: 50 }}
+          height={400}
+          theme={VictoryTheme.material}
+          domainPadding={30}
         >
-          <AntDesign name="left" size={16} color="white" />
-        </SmallButton>
-        <SmallButton
-          style={{ borderRadius: 0 }}
-          onPress={() => setView('week')}
-        >
-          Week
-        </SmallButton>
-        <SmallButton
-          style={{ borderRadius: 0 }}
-          onPress={() => setView('month')}
-        >
-          Month
-        </SmallButton>
-        <SmallButton
-          style={{ borderRadius: 0 }}
-          onPress={() => setView('year')}
-        >
-          Year
-        </SmallButton>
-        <SmallButton
-          style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          onPress={() => changeDate(1)}
-        >
-          <AntDesign name="right" size={16} color="white" />
-        </SmallButton>
+          <VictoryAxis
+            crossAxis
+            fixLabelOverlap
+            tickValues={mealChartLayoutConfig.xTicks()}
+            tickFormat={mealChartLayoutConfig.xTickFormatter}
+          />
+          <VictoryAxis
+            dependentAxis
+            fixLabelOverlap
+            tickValues={mealChartLayoutConfig.yTicks()}
+            tickFormat={mealChartLayoutConfig.yTickFormatter}
+          />
+          <VictoryScatter
+            data={mealChartData.data}
+            x="x"
+            y="y.time"
+            size={mealChartLayoutConfig.dataSize}
+            style={{
+              data: {
+                fill: ({ datum }) => ColorPicker.getColor(datum.y.foodId),
+                transform: ({}) =>
+                  `translate(${mealChartLayoutConfig.jitterX()}, ${mealChartLayoutConfig.jitterY()})`,
+              },
+            }}
+          />
+        </VictoryChart>
       </View>
-      <VictoryChart
-        padding={{ left: 50, right: 50, top: 10, bottom: 50 }}
-        height={400}
-        theme={VictoryTheme.material}
-        domainPadding={30}
-      >
-        <VictoryAxis
-          crossAxis
-          fixLabelOverlap
-          tickValues={mealChartLayoutConfig.xTicks()}
-          tickFormat={mealChartLayoutConfig.xTickFormatter}
-        />
-        <VictoryAxis
-          dependentAxis
-          fixLabelOverlap
-          tickValues={mealChartLayoutConfig.yTicks()}
-          tickFormat={mealChartLayoutConfig.yTickFormatter}
-        />
-        <VictoryScatter
-          data={mealChartData.data}
-          x="x"
-          y="y.time"
-          size={mealChartLayoutConfig.dataSize}
-          style={{
-            data: {
-              fill: ({ datum }) => ColorPicker.getColor(datum.y.foodId),
-              transform: ({}) =>
-                `translate(${mealChartLayoutConfig.jitterX()}, ${mealChartLayoutConfig.jitterY()})`,
-            },
-          }}
-        />
-      </VictoryChart>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#f5fcff',
+  },
+  chartContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   topContainer: {
     display: 'flex',
