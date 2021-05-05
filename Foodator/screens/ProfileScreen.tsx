@@ -40,9 +40,10 @@ export function ProfileScreen({}: ProfileScreenProps): React.ReactElement {
         {listDataSource.map((item, key) => (
           <ExpandableListElement
             key={item.categoryName}
-            onPress={() => {
+            onExpand={() => {
               updateLayout(key);
             }}
+            onSelected={() => setListDataSource([...listDataSource])}
             item={item}
           />
         ))}
@@ -72,20 +73,22 @@ const styles = StyleSheet.create({
 const CONTENT: ExpandableListElementItem[] = [
   {
     isExpanded: false,
+    isSelected: false,
     categoryName: 'Symptoms',
     subcategory: [
-      { id: 0, text: 'Stomachache' },
-      { id: 1, text: 'Nausea' },
-      { id: 2, text: 'Cramps' },
-      { id: 3, text: 'Bloating' },
+      { id: 0, text: 'Stomachache', isSelected: false },
+      { id: 1, text: 'Nausea', isSelected: false },
+      { id: 2, text: 'Cramps', isSelected: false },
+      { id: 3, text: 'Bloating', isSelected: false },
     ],
   },
   {
     isExpanded: false,
+    isSelected: false,
     categoryName: 'Chocolate',
     subcategory: [
-      { id: 4, text: 'Milk chocolate' },
-      { id: 5, text: 'Dark chocolate' },
+      { id: 4, text: 'Milk chocolate', isSelected: false },
+      { id: 5, text: 'Dark chocolate', isSelected: false },
     ],
   },
 ];

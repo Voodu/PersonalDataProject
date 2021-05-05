@@ -48,7 +48,7 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
   const [checked, setChecked] = React.useState(props.checked ?? false);
   const handlePress = () => {
     setChecked(!checked);
-    props.onChange && props.onChange(checked);
+    props.onChange && props.onChange(!checked);
   };
   return (
     <TouchableOpacity

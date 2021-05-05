@@ -51,18 +51,25 @@ const selectableStyles = StyleSheet.create({
 
 type ExpandableListElementProps<T> = {
   item: T;
-  onPress?: (event: GestureResponderEvent) => void;
+  onExpand?: (event: GestureResponderEvent) => void;
+  onSelected?: (
+    item: ExpandableListElementItem | ExpandableListElementItemSubcategory
+  ) => void;
 };
 
 interface ExpandableListElementItemSubcategory {
   id: number;
   text: string;
   data?: unknown;
+
+  isSelected: boolean;
 }
 export interface ExpandableListElementItem {
   isExpanded: boolean;
   categoryName: string;
   subcategory: ExpandableListElementItemSubcategory[];
+
+  isSelected: boolean;
 }
 
 export function ExpandableListElement<T extends ExpandableListElementItem>(
@@ -83,7 +90,7 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
       {/*Header of the Expandable List Item*/}
       <TouchableOpacity
         activeOpacity={1}
-        onPress={props.onPress}
+        onPress={props.onExpand}
         style={expandableStyles.header}
       >
         <AntDesign
@@ -96,7 +103,10 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
         </RegularText>
         <SmallCheckBox
           containerStyle={expandableStyles.categoryCheckbox}
-          onChange={() => console.log('Category pressed')}
+          onChange={(value) => {
+            props.item.isSelected = value;
+            props.onSelected && props.onSelected(props.item);
+          }}
         />
       </TouchableOpacity>
       <View
@@ -110,7 +120,10 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
           <View key={key} style={expandableStyles.content}>
             <SmallCheckBox
               textStyle={expandableStyles.text}
-              onChange={() => console.log('Item pressed')}
+              onChange={(value) => {
+                item.isSelected = value;
+                props.onSelected && props.onSelected(item);
+              }}
               label={item.text}
               size={28}
             />
