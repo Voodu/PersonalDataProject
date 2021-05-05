@@ -95,17 +95,39 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   const updateLegendAndSelectedFoods = (
     legendData: ExpandableListElementItem[]
   ) => {
-    setLegendDataSource(legendData.sort(legendOrdering));
-    const selectedIds = legendData
-      .map((x) => x.subcategory.filter((x) => x.isSelected).map((x) => x.id))
-      .flat();
-    setSelectedFoods([...selectedIds]);
     const mealChartData = new ChartDataProcessor<
       MealHistoryEntry,
       ChartDataPoint
     >(mealDataConfig, mealHistoryRawData.values).data;
-    const finalFoods = mealChartData.filter((x) =>
-      selectedIds.some((selected) => selected === x.y.foodId)
+    setLegendDataSource(legendData.sort(legendOrdering));
+    const selectedCategories = legendData.filter((x) => x.isSelected);
+    const selectedFoodIds = legendData
+      .map((x) =>
+        x.subcategory
+          .filter((y) => y.isSelected && !x.isSelected)
+          .map((x) => x.id)
+      )
+      .flat();
+    setSelectedFoods([...selectedFoodIds]);
+
+    const finalFoods: DataPoint<ChartDataPoint>[] = [];
+    for (const meal of mealChartData) {
+      for (const category of selectedCategories) {
+        for (const food of category.subcategory) {
+          if (meal.y.foodId === food.id) {
+            finalFoods.push({
+              x: meal.x,
+              y: { foodId: category.categoryName, time: meal.y.time },
+            });
+          }
+        }
+      }
+    }
+
+    finalFoods.push(
+      ...mealChartData.filter((x) =>
+        selectedFoodIds.some((selected) => selected === x.y.foodId)
+      )
     );
     setMealChartData(finalFoods);
   };
