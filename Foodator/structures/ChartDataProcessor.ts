@@ -1,7 +1,7 @@
 import { ChartDataProcessorConfig } from './ChartDataProcessorConfig';
 
 export class ChartDataProcessor<TRaw, TPlotted> {
-  public data: DataPoint[] = [];
+  public data: DataPoint<TPlotted>[] = [];
   constructor(
     config: ChartDataProcessorConfig<TRaw, TPlotted>,
     values: TRaw[]
@@ -23,7 +23,7 @@ export class ChartDataProcessor<TRaw, TPlotted> {
     }
 
     for (let i = 0; i < xLabels.length; i++) {
-      this.data.push({ x: xLabels[i], y: yValues[i] });
+      this.data.push({ x: xLabels[i], y: yValues[i] as TPlotted });
     }
   }
 
@@ -51,7 +51,7 @@ export class ChartDataProcessor<TRaw, TPlotted> {
   }
 }
 
-interface DataPoint {
+export interface DataPoint<T> {
   x: unknown;
-  y: unknown;
+  y: T;
 }

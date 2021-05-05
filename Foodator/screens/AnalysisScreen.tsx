@@ -15,8 +15,8 @@ import {
   VictoryScatter,
   VictoryTheme,
 } from 'victory-native';
-import { dateTimeReviver, mealHistoryMock } from '../other';
-import { MealHistory } from '../models/collections';
+import { dateTimeReviver, foodCatalogueMock, mealHistoryMock } from '../other';
+import { FoodCatalogue, MealHistory } from '../models/collections';
 import {
   ChartLayoutConfig,
   ChartDataProcessor,
@@ -24,8 +24,11 @@ import {
   ColorPicker,
   ChartDataPoint,
   Time,
+  GroupFunction,
+  Accumulator,
+  DataPoint,
 } from '../structures';
-import { MealHistoryEntry } from '../models/entities';
+import { FoodCatalogueEntry, MealHistoryEntry } from '../models/entities';
 import {
   ExpandableListElement,
   ExpandableListElementItem,
@@ -33,7 +36,14 @@ import {
   SmallButton,
 } from '../components';
 
-const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
+const mealHistoryRawData: MealHistory = JSON.parse(
+  mealHistoryMock,
+  dateTimeReviver
+);
+const foodCatalogueRawData: FoodCatalogue = JSON.parse(
+  foodCatalogueMock,
+  dateTimeReviver
+);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   // TODO: Use current date
@@ -46,13 +56,12 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   const [mealChartLayoutConfig, setMealChartLayoutConfig] = React.useState(
     configs.layoutConfig
   );
-
-  const setView = (mode: string) => {
-    setMode(mode);
-    const configs = generateMealChartConfigs(mode, time);
-    setMealDataConfig(configs.dataConfig);
-    setMealChartLayoutConfig(configs.layoutConfig);
-  };
+  const [mealChartData, setMealChartData] = React.useState(
+    new ChartDataProcessor<MealHistoryEntry, ChartDataPoint>(
+      mealDataConfig,
+      mealHistoryRawData.values
+    )
+  );
 
   const changeDate = (diff: -1 | 0 | 1) => {
     switch (mode) {
@@ -71,13 +80,11 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     }
   };
 
-  const mealChartData = new ChartDataProcessor<
-    MealHistoryEntry,
-    ChartDataPoint
-  >(mealDataConfig, mealRawData.values);
+  const legendContent: ExpandableListElementItem[] = generateLegendContent(
+    mealChartData.data
+  );
 
-  // SELECTION
-  const [listDataSource, setListDataSource] = React.useState(CONTENT);
+  const [legendDataSource, setLegendDataSource] = React.useState(legendContent);
 
   if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -87,7 +94,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
 
   const updateLayout = (index: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    const array = [...listDataSource];
+    const array = [...legendDataSource];
 
     array.forEach((value, placeindex) =>
       placeindex === index
@@ -95,9 +102,22 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         : (value.isExpanded = false)
     );
 
-    setListDataSource(array);
+    setLegendDataSource(array);
   };
 
+  const setView = (mode: string) => {
+    setMode(mode);
+    const configs = generateMealChartConfigs(mode, time);
+    setMealDataConfig(configs.dataConfig);
+    setMealChartLayoutConfig(configs.layoutConfig);
+    const mealChartData = new ChartDataProcessor<
+      MealHistoryEntry,
+      ChartDataPoint
+    >(configs.dataConfig, mealHistoryRawData.values);
+    setMealChartData(mealChartData);
+
+    setLegendDataSource(generateLegendContent(mealChartData.data));
+  };
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
       <View style={styles.chartContainer}>
@@ -173,13 +193,13 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
       </View>
       <View style={styles.legendContainer}>
         <ScrollView style={{ width: '100%' }}>
-          {listDataSource.map((item, key) => (
+          {legendDataSource.map((item, key) => (
             <ExpandableListElement
               key={item.categoryName}
               onExpand={() => {
                 updateLayout(key);
               }}
-              onSelected={() => setListDataSource([...listDataSource])}
+              onSelected={() => setLegendDataSource([...legendDataSource])}
               item={item}
             />
           ))}
@@ -213,7 +233,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 20,
   },
-
   legendContainer: {
     flex: 1,
     alignItems: 'center',
@@ -263,25 +282,48 @@ function generateMealChartConfigs(mode: string, time: Time) {
   };
 }
 
-const CONTENT: ExpandableListElementItem[] = [
-  {
-    isExpanded: false,
-    isSelected: false,
-    categoryName: 'Symptoms',
-    subcategory: [
-      { id: 0, text: 'Stomachache', isSelected: false },
-      { id: 1, text: 'Nausea', isSelected: false },
-      { id: 2, text: 'Cramps', isSelected: false },
-      { id: 3, text: 'Bloating', isSelected: false },
-    ],
-  },
-  {
-    isExpanded: false,
-    isSelected: false,
-    categoryName: 'Chocolate',
-    subcategory: [
-      { id: 4, text: 'Milk chocolate', isSelected: false },
-      { id: 5, text: 'Dark chocolate', isSelected: false },
-    ],
-  },
-];
+function generateLegendContent(data: DataPoint<ChartDataPoint>[]) {
+  const foods: FoodCatalogueEntry[] | undefined = [];
+  // Go over all data.y values.
+  // For every, go through FoodCatalogue and take food catalogue entry if FC = data.y.foodid
+  for (const point of data) {
+    const food = foodCatalogueRawData.values.find(
+      (catalogueEntry) => point.y.foodId === catalogueEntry.foodId
+    );
+    if (food && !foods.some((f) => f.foodId == food.foodId)) {
+      foods.push(food);
+    }
+  }
+  // Group obtained array by x.category
+  const group: GroupFunction<FoodCatalogueEntry> = (
+    acc: Accumulator<FoodCatalogueEntry>,
+    current: FoodCatalogueEntry
+  ) => {
+    const i = current.category;
+    acc[i] = acc[i] ? acc[i].concat(current) : [current];
+    return acc;
+  };
+  const grouped = foods.reduce(group, {});
+  // Map to legendContent interface
+  const legendContent: ExpandableListElementItem[] = [];
+  for (const category in grouped) {
+    if (Object.prototype.hasOwnProperty.call(grouped, category)) {
+      const foods = grouped[category];
+      legendContent.push({
+        isExpanded: false,
+        isSelected: false,
+        categoryName: category,
+        subcategory: foods.map((food) => {
+          return {
+            id: food.foodId,
+            text: food.name,
+            isSelected: false,
+          };
+        }),
+      });
+    }
+  }
+  return legendContent.sort((a, b) =>
+    a.categoryName > b.categoryName ? 1 : -1
+  );
+}

@@ -170,6 +170,8 @@ const expandableStyles = StyleSheet.create({
     alignSelf: 'center',
     color: 'rgba(46, 98, 120, 1)',
     paddingLeft: 20,
+    paddingRight: 28,
+    marginRight: 'auto',
   },
   content: {
     display: 'flex',

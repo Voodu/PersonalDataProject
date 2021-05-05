@@ -1,5 +1,6 @@
 export type Accumulator<T> = {
   [name: number]: T[];
+  [name: string]: T[];
 };
 export type FilterFunction<TRaw> = (item: TRaw) => boolean;
 export type LabelSelectorFunction = (label: string) => string;
