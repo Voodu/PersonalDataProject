@@ -47,8 +47,8 @@ export function RoundCheckBox(props: CheckBoxProps): React.ReactElement {
 export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
   const [checked, setChecked] = React.useState(props.checked ?? false);
   const handlePress = () => {
-    setChecked(!checked);
-    props.onChange && props.onChange(!checked);
+    setChecked(!props.checked ?? !checked);
+    props.onChange && props.onChange(!props.checked ?? !checked);
   };
   return (
     <TouchableOpacity
@@ -61,7 +61,7 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
       </RegularText>
       {/* // TODO: On touch change state */}
       <MaterialCommunityIcons
-        name={checked ? 'circle-slice-8' : 'circle-outline'}
+        name={props.checked ?? checked ? 'circle-slice-8' : 'circle-outline'}
         size={props.size || 28}
         // TODO: Move color to constants
         color={props.color || '#2E6278'}

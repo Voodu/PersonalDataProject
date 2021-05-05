@@ -56,12 +56,9 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   const [mealChartLayoutConfig, setMealChartLayoutConfig] = React.useState(
     configs.layoutConfig
   );
-  const [mealChartData, setMealChartData] = React.useState(
-    new ChartDataProcessor<MealHistoryEntry, ChartDataPoint>(
-      mealDataConfig,
-      mealHistoryRawData.values
-    )
-  );
+  const [mealChartData, setMealChartData] = React.useState<
+    DataPoint<ChartDataPoint>[]
+  >([]);
 
   const changeDate = (diff: -1 | 0 | 1) => {
     switch (mode) {
@@ -80,17 +77,38 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     }
   };
 
-  const legendContent: ExpandableListElementItem[] = generateLegendContent(
-    mealChartData.data
+  const legendContent = generateLegendContent(
+    new ChartDataProcessor<MealHistoryEntry, ChartDataPoint>(
+      mealDataConfig,
+      mealHistoryRawData.values
+    ).data
   );
 
   const [legendDataSource, setLegendDataSource] = React.useState(legendContent);
+  const [selectedFoods, setSelectedFoods] = React.useState<number[]>([]);
 
   if (Platform.OS === 'android') {
-    if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental &&
       UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
   }
+
+  const updateLegendAndSelectedFoods = (
+    legendData: ExpandableListElementItem[]
+  ) => {
+    setLegendDataSource(legendData.sort(legendOrdering));
+    const selectedIds = legendData
+      .map((x) => x.subcategory.filter((x) => x.isSelected).map((x) => x.id))
+      .flat();
+    setSelectedFoods([...selectedIds]);
+    const mealChartData = new ChartDataProcessor<
+      MealHistoryEntry,
+      ChartDataPoint
+    >(mealDataConfig, mealHistoryRawData.values).data;
+    const finalFoods = mealChartData.filter((x) =>
+      selectedIds.some((selected) => selected === x.y.foodId)
+    );
+    setMealChartData(finalFoods);
+  };
 
   const updateLayout = (index: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -102,7 +120,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         : (value.isExpanded = false)
     );
 
-    setLegendDataSource(array);
+    updateLegendAndSelectedFoods(array);
   };
 
   const setView = (mode: string) => {
@@ -113,10 +131,13 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     const mealChartData = new ChartDataProcessor<
       MealHistoryEntry,
       ChartDataPoint
-    >(configs.dataConfig, mealHistoryRawData.values);
+    >(configs.dataConfig, mealHistoryRawData.values).data;
     setMealChartData(mealChartData);
 
-    setLegendDataSource(generateLegendContent(mealChartData.data));
+    updateLegendAndSelectedFoods(generateLegendContent(mealChartData));
+  };
+  const updateLegendData = () => {
+    updateLegendAndSelectedFoods(legendDataSource);
   };
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
@@ -175,7 +196,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
             tickFormat={mealChartLayoutConfig.yTickFormatter}
           />
           <VictoryScatter
-            data={mealChartData.data}
+            data={mealChartData}
             x="x"
             y="y.time"
             size={mealChartLayoutConfig.dataSize}
@@ -199,7 +220,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
               onExpand={() => {
                 updateLayout(key);
               }}
-              onSelected={() => setLegendDataSource([...legendDataSource])}
+              onSelected={updateLegendData}
               item={item}
             />
           ))}
@@ -282,6 +303,15 @@ function generateMealChartConfigs(mode: string, time: Time) {
   };
 }
 
+function legendOrdering(
+  a: ExpandableListElementItem,
+  b: ExpandableListElementItem
+): 1 | -1 {
+  if (a.isSelected && !b.isSelected) return -1;
+  if (!a.isSelected && b.isSelected) return 1;
+  return a.categoryName > b.categoryName ? 1 : -1;
+}
+
 function generateLegendContent(data: DataPoint<ChartDataPoint>[]) {
   const foods: FoodCatalogueEntry[] | undefined = [];
   // Go over all data.y values.
@@ -323,7 +353,5 @@ function generateLegendContent(data: DataPoint<ChartDataPoint>[]) {
       });
     }
   }
-  return legendContent.sort((a, b) =>
-    a.categoryName > b.categoryName ? 1 : -1
-  );
+  return legendContent.sort(legendOrdering);
 }

@@ -9,6 +9,7 @@ import { RoundCheckBox, SmallCheckBox } from './CheckBoxes';
 import { RegularText, SecondaryText } from './StyledText';
 import { AntDesign } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
+import { ColorPicker } from '../structures';
 
 type SelectableListElementProps = {
   text: string;
@@ -105,8 +106,11 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
           containerStyle={expandableStyles.categoryCheckbox}
           onChange={(value) => {
             props.item.isSelected = value;
+            props.item.subcategory.forEach((x) => (x.isSelected = value));
             props.onSelected && props.onSelected(props.item);
           }}
+          checked={props.item.isSelected}
+          color={ColorPicker.getColor(props.item.categoryName)}
         />
       </TouchableOpacity>
       <View
@@ -126,6 +130,8 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
               }}
               label={item.text}
               size={28}
+              checked={item.isSelected}
+              color={ColorPicker.getColor(item.id)}
             />
             {key < props.item.subcategory.length - 1 && (
               <View style={expandableStyles.separator} />

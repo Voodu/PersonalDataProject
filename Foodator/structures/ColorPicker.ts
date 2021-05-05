@@ -1,8 +1,8 @@
 export class ColorPicker {
-  public static getColor(id: number): string {
+  public static getColor(id: number | string): string {
     return `rgb(${this.hashCode(String(id)) % 255}, ${
-      this.hashCode(String(id + 1)) % 255
-    }, ${this.hashCode(String(id + 2)) % 255})`;
+      this.hashCode(String(id + '1')) % 255
+    }, ${this.hashCode(String(id + '2')) % 255})`;
   }
 
   private static hashCode(s: string) {
