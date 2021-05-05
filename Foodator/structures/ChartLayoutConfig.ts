@@ -47,15 +47,17 @@ export class ChartLayoutConfig {
     this.jitterMagnitude = { x: 10, y: 5 };
   }
 
-  public jitterX(): number {
-    const [min, max] = [-this.jitterMagnitude.x, this.jitterMagnitude.x];
-    const range = max - min;
-    return Math.random() * range - max;
+  public jitterX(seed: number): number {
+    return this.jitter(seed, this.jitterMagnitude.x);
   }
 
-  public jitterY(): number {
-    const [min, max] = [-this.jitterMagnitude.y, this.jitterMagnitude.y];
+  public jitterY(seed: number): number {
+    return this.jitter(seed, this.jitterMagnitude.y);
+  }
+
+  private jitter(seed: number, halfRange: number) {
+    const [min, max] = [-halfRange, halfRange];
     const range = max - min;
-    return Math.random() * range - max;
+    return (seed % range) + min;
   }
 }

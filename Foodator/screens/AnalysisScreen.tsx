@@ -1,5 +1,12 @@
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import {
+  LayoutAnimation,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  UIManager,
+  View,
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { AnalysisScreenProps } from '../types';
 import {
@@ -19,7 +26,12 @@ import {
   Time,
 } from '../structures';
 import { MealHistoryEntry } from '../models/entities';
-import { RegularText, SmallButton } from '../components';
+import {
+  ExpandableListElement,
+  ExpandableListElementItem,
+  RegularText,
+  SmallButton,
+} from '../components';
 
 const mealRawData: MealHistory = JSON.parse(mealHistoryMock, dateTimeReviver);
 
@@ -63,11 +75,34 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     MealHistoryEntry,
     ChartDataPoint
   >(mealDataConfig, mealRawData.values);
+
+  // SELECTION
+  const [listDataSource, setListDataSource] = React.useState(CONTENT);
+
+  if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
+
+  const updateLayout = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    const array = [...listDataSource];
+
+    array.forEach((value, placeindex) =>
+      placeindex === index
+        ? (value.isExpanded = !value.isExpanded)
+        : (value.isExpanded = false)
+    );
+
+    setListDataSource(array);
+  };
+
   return (
-    <View style={styles.mainContainer}>
+    <ScrollView contentContainerStyle={styles.mainContainer}>
       <View style={styles.chartContainer}>
-        <View style={styles.topContainer}>
-          <RegularText style={styles.titleText}>
+        <View style={styles.chartHeader}>
+          <RegularText style={styles.chartTitleText}>
             {mealChartLayoutConfig.title}
           </RegularText>
           <SmallButton
@@ -127,28 +162,45 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
             style={{
               data: {
                 fill: ({ datum }) => ColorPicker.getColor(datum.y.foodId),
-                transform: ({}) =>
-                  `translate(${mealChartLayoutConfig.jitterX()}, ${mealChartLayoutConfig.jitterY()})`,
+                transform: ({ datum }) =>
+                  `translate(${mealChartLayoutConfig.jitterX(
+                    datum.y.foodId
+                  )}, ${mealChartLayoutConfig.jitterY(datum.y.foodId)})`,
               },
             }}
           />
         </VictoryChart>
       </View>
-    </View>
+      <View style={styles.legendContainer}>
+        <ScrollView style={{ width: '100%' }}>
+          {listDataSource.map((item, key) => (
+            <ExpandableListElement
+              key={item.categoryName}
+              onExpand={() => {
+                updateLayout(key);
+              }}
+              onSelected={() => setListDataSource([...listDataSource])}
+              item={item}
+            />
+          ))}
+        </ScrollView>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
+    // flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 20,
   },
   chartContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topContainer: {
+  chartHeader: {
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -156,10 +208,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '90%',
   },
-  titleText: {
+  chartTitleText: {
     textAlign: 'center',
     width: '100%',
     marginBottom: 20,
+  },
+
+  legendContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    // height: 500,
+  },
+  legendTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 
@@ -199,3 +262,26 @@ function generateMealChartConfigs(mode: string, time: Time) {
     layoutConfig,
   };
 }
+
+const CONTENT: ExpandableListElementItem[] = [
+  {
+    isExpanded: false,
+    isSelected: false,
+    categoryName: 'Symptoms',
+    subcategory: [
+      { id: 0, text: 'Stomachache', isSelected: false },
+      { id: 1, text: 'Nausea', isSelected: false },
+      { id: 2, text: 'Cramps', isSelected: false },
+      { id: 3, text: 'Bloating', isSelected: false },
+    ],
+  },
+  {
+    isExpanded: false,
+    isSelected: false,
+    categoryName: 'Chocolate',
+    subcategory: [
+      { id: 4, text: 'Milk chocolate', isSelected: false },
+      { id: 5, text: 'Dark chocolate', isSelected: false },
+    ],
+  },
+];
