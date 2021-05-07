@@ -106,7 +106,6 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
           containerStyle={expandableStyles.categoryCheckbox}
           onChange={(value) => {
             props.item.isSelected = value;
-            props.item.subcategory.forEach((x) => (x.isSelected = value));
             props.onSelected && props.onSelected(props.item);
           }}
           checked={props.item.isSelected}
