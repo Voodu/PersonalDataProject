@@ -110,6 +110,7 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
           }}
           checked={props.item.isSelected}
           color={ColorPicker.getColor(props.item.categoryName)}
+          partial={!props.item.isSelected && props.item.subcategory.some((x) => x.isSelected)}
         />
       </TouchableOpacity>
       <View

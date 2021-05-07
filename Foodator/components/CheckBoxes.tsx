@@ -19,6 +19,7 @@ type CheckBoxProps = {
   containerStyle?: StyleProp<ViewStyle>;
   iconStyle?: StyleProp<TextStyle>;
   label?: string;
+  partial?: boolean;
 };
 
 export function RoundCheckBox(props: CheckBoxProps): React.ReactElement {
@@ -50,6 +51,12 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
     setChecked(!props.checked ?? !checked);
     props.onChange && props.onChange(!props.checked ?? !checked);
   };
+
+  const icon = props.partial
+    ? 'circle-slice-4'
+    : props.checked ?? checked
+    ? 'circle-slice-8'
+    : 'circle-outline';
   return (
     <TouchableOpacity
       style={[styles.container, props.containerStyle]}
@@ -61,7 +68,7 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
       </RegularText>
       {/* // TODO: On touch change state */}
       <MaterialCommunityIcons
-        name={props.checked ?? checked ? 'circle-slice-8' : 'circle-outline'}
+        name={icon}
         size={props.size || 28}
         // TODO: Move color to constants
         color={props.color || '#2E6278'}
