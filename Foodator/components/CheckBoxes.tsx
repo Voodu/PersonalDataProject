@@ -6,9 +6,12 @@ import {
   StyleSheet,
   TextStyle,
   TouchableOpacity,
+  View,
   ViewStyle,
 } from 'react-native';
+import { ScatterSymbolType } from 'victory-core';
 import { RegularText } from './StyledText';
+import { Symbol } from './Symbol';
 
 type CheckBoxProps = {
   checked?: boolean;
@@ -20,6 +23,7 @@ type CheckBoxProps = {
   iconStyle?: StyleProp<TextStyle>;
   label?: string;
   partial?: boolean;
+  symbol?: ScatterSymbolType;
 };
 
 export function RoundCheckBox(props: CheckBoxProps): React.ReactElement {
@@ -52,6 +56,19 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
     props.onChange && props.onChange(!props.checked ?? !checked);
   };
 
+  let graphics = null;
+  if (props.symbol && (props.checked ?? checked)) {
+    graphics = (
+      <Symbol
+        name={props.symbol}
+        size={props.size || 28}
+        // TODO: Move color to constants
+        color={props.color || '#2E6278'}
+        style={[styles.icon, props.iconStyle]}
+      />
+    );
+  }
+
   const icon = props.partial
     ? 'circle-slice-4'
     : props.checked ?? checked
@@ -66,14 +83,15 @@ export function SmallCheckBox(props: CheckBoxProps): React.ReactElement {
       <RegularText style={[styles.label, props.textStyle]}>
         {props.label}
       </RegularText>
-      {/* // TODO: On touch change state */}
-      <MaterialCommunityIcons
-        name={icon}
-        size={props.size || 28}
-        // TODO: Move color to constants
-        color={props.color || '#2E6278'}
-        style={[styles.icon, props.iconStyle]}
-      />
+      {graphics ?? (
+        <MaterialCommunityIcons
+          name={icon}
+          size={props.size || 28}
+          // TODO: Move color to constants
+          color={props.color || '#2E6278'}
+          style={[styles.icon, props.iconStyle]}
+        />
+      )}
     </TouchableOpacity>
   );
 }
@@ -83,11 +101,16 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 7,
     paddingLeft: 5,
     paddingRight: 5,
     width: '100%',
   },
   label: {},
-  icon: {},
+  icon: {
+    // textAlign: 'center',
+    height: 28,
+    width: 28,
+  },
 });

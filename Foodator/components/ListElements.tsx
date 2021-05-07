@@ -9,7 +9,9 @@ import { RoundCheckBox, SmallCheckBox } from './CheckBoxes';
 import { RegularText, SecondaryText } from './StyledText';
 import { AntDesign } from '@expo/vector-icons';
 import Colors from '../constants/Colors';
-import { ColorPicker } from '../structures';
+import { MarkerStylingPicker } from '../structures';
+import { ScatterSymbolType } from 'victory-core';
+
 
 type SelectableListElementProps = {
   text: string;
@@ -64,6 +66,8 @@ interface ExpandableListElementItemSubcategory {
   data?: unknown;
 
   isSelected: boolean;
+
+  symbol?: ScatterSymbolType;
 }
 export interface ExpandableListElementItem {
   isExpanded: boolean;
@@ -71,6 +75,8 @@ export interface ExpandableListElementItem {
   subcategory: ExpandableListElementItemSubcategory[];
 
   isSelected: boolean;
+
+  symbol?: ScatterSymbolType;
 }
 
 export function ExpandableListElement<T extends ExpandableListElementItem>(
@@ -109,8 +115,12 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
             props.onSelected && props.onSelected(props.item);
           }}
           checked={props.item.isSelected}
-          color={ColorPicker.getColor(props.item.categoryName)}
-          partial={!props.item.isSelected && props.item.subcategory.some((x) => x.isSelected)}
+          color={MarkerStylingPicker.getColor(props.item.categoryName)}
+          symbol={props.item.symbol}
+          partial={
+            !props.item.isSelected &&
+            props.item.subcategory.some((x) => x.isSelected)
+          }
         />
       </TouchableOpacity>
       <View
@@ -131,7 +141,8 @@ export function ExpandableListElement<T extends ExpandableListElementItem>(
               label={item.text}
               size={28}
               checked={item.isSelected}
-              color={ColorPicker.getColor(item.id)}
+              color={MarkerStylingPicker.getColor(item.id)}
+              symbol={item.symbol}
             />
             {key < props.item.subcategory.length - 1 && (
               <View style={expandableStyles.separator} />

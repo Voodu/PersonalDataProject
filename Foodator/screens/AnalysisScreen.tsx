@@ -32,7 +32,7 @@ import {
   ChartLayoutConfig,
   ChartDataProcessor,
   ChartDataProcessorConfig,
-  ColorPicker,
+  MarkerStylingPicker,
   ChartDataPoint,
   Time,
   GroupFunction,
@@ -333,7 +333,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
             size={layoutConfig.dataSize}
             style={{
               data: {
-                fill: ({ datum }) => ColorPicker.getColor(datum.y.pointId),
+                fill: ({ datum }) => MarkerStylingPicker.getColor(datum.y.pointId),
                 transform: ({ datum }) =>
                   `translate(${layoutConfig.jitterX(
                     datum.y.pointId
@@ -348,7 +348,7 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
             size={layoutConfig.dataSize}
             style={{
               data: {
-                fill: ({ datum }) => ColorPicker.getColor(datum.y.pointId),
+                fill: ({ datum }) => MarkerStylingPicker.getColor(datum.y.pointId),
                 transform: ({ datum }) =>
                   `translate(${layoutConfig.jitterX(
                     datum.y.pointId
