@@ -15,8 +15,19 @@ import {
   VictoryScatter,
   VictoryTheme,
 } from 'victory-native';
-import { dateTimeReviver, foodCatalogueMock, mealHistoryMock } from '../other';
-import { FoodCatalogue, MealHistory } from '../models/collections';
+import {
+  dateTimeReviver,
+  foodCatalogueMock,
+  mealHistoryMock,
+  symptomsCatalogueMock,
+  symptomsHistoryMock,
+} from '../other';
+import {
+  FoodCatalogue,
+  MealHistory,
+  SymptomsCatalogue,
+  SymptomsHistory,
+} from '../models/collections';
 import {
   ChartLayoutConfig,
   ChartDataProcessor,
@@ -28,7 +39,12 @@ import {
   Accumulator,
   DataPoint,
 } from '../structures';
-import { FoodCatalogueEntry, MealHistoryEntry } from '../models/entities';
+import {
+  FoodCatalogueEntry,
+  MealHistoryEntry,
+  SymptomCatalogueEntry,
+  SymptomHistoryEntry,
+} from '../models/entities';
 import {
   ExpandableListElement,
   ExpandableListElementItem,
@@ -44,19 +60,34 @@ const foodCatalogueRawData: FoodCatalogue = JSON.parse(
   foodCatalogueMock,
   dateTimeReviver
 );
+const symptomsHistoryRawData: SymptomsHistory = JSON.parse(
+  symptomsHistoryMock,
+  dateTimeReviver
+);
+const symptomsCatalogueRawData: SymptomsCatalogue = JSON.parse(
+  symptomsCatalogueMock,
+  dateTimeReviver
+);
 
 export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
   // TODO: Use current date
   const [time] = React.useState(new Time(new Date(2021, 3, 12, 22, 35)));
   const [mode, setMode] = React.useState('week');
-  const configs = generateMealChartConfigs(mode, time);
+  const mealConfigs = generateMealChartConfigs(mode, time);
+  const symptomConfigs = generateSymptomsChartConfigs(mode, time);
   const [mealDataConfig, setMealDataConfig] = React.useState(
-    configs.dataConfig
+    mealConfigs.dataConfig
   );
-  const [mealChartLayoutConfig, setMealChartLayoutConfig] = React.useState(
-    configs.layoutConfig
+  const [symptomDataConfig, setSymptomDataConfig] = React.useState(
+    symptomConfigs.dataConfig
+  );
+  const [layoutConfig, setLayoutConfig] = React.useState(
+    mealConfigs.layoutConfig
   );
   const [mealChartData, setMealChartData] = React.useState<
+    DataPoint<ChartDataPoint>[]
+  >([]);
+  const [symptomChartData, setSymptomChartData] = React.useState<
     DataPoint<ChartDataPoint>[]
   >([]);
 
@@ -77,29 +108,42 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     }
   };
 
-  const legendContent = generateLegendContent(
+  const mealLegendContent = generateMealLegendContent(
     new ChartDataProcessor<MealHistoryEntry, ChartDataPoint>(
       mealDataConfig,
       mealHistoryRawData.values
     ).data
   );
+  const symptomsLegendContent = generateSymptomsLegendContent(
+    new ChartDataProcessor<SymptomHistoryEntry, ChartDataPoint>(
+      symptomDataConfig,
+      symptomsHistoryRawData.values
+    ).data
+  );
 
-  const [legendDataSource, setLegendDataSource] = React.useState(legendContent);
+  const [mealLegendDataSource, setMealLegendDataSource] = React.useState(
+    mealLegendContent
+  );
+  const [
+    symptomsLegendDataSource,
+    setSymptomsLegendDataSource,
+  ] = React.useState(symptomsLegendContent);
   const [selectedFoods, setSelectedFoods] = React.useState<number[]>([]);
+  const [selectedSymptoms, setSelectedSymptoms] = React.useState<number[]>([]);
 
   if (Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental &&
       UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
-  const updateLegendAndSelectedFoods = (
+  const updateMealLegendAndSelectedFoods = (
     legendData: ExpandableListElementItem[]
   ) => {
     const mealChartData = new ChartDataProcessor<
       MealHistoryEntry,
       ChartDataPoint
     >(mealDataConfig, mealHistoryRawData.values).data;
-    setLegendDataSource(legendData.sort(legendOrdering));
+    setMealLegendDataSource(legendData.sort(legendOrdering));
     const selectedCategories = legendData.filter((x) => x.isSelected);
     const selectedFoodIds = legendData
       .map((x) =>
@@ -114,10 +158,10 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
     for (const meal of mealChartData) {
       for (const category of selectedCategories) {
         for (const food of category.subcategory) {
-          if (meal.y.foodId === food.id) {
+          if (meal.y.pointId === food.id) {
             finalFoods.push({
               x: meal.x,
-              y: { foodId: category.categoryName, time: meal.y.time },
+              y: { pointId: category.categoryName, time: meal.y.time },
             });
           }
         }
@@ -126,15 +170,54 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
 
     finalFoods.push(
       ...mealChartData.filter((x) =>
-        selectedFoodIds.some((selected) => selected === x.y.foodId)
+        selectedFoodIds.some((selected) => selected === x.y.pointId)
       )
     );
     setMealChartData(finalFoods);
   };
+  const updateSymptomsLegendAndSelectedSymptoms = (
+    legendData: ExpandableListElementItem[]
+  ) => {
+    const symptomsChartData = new ChartDataProcessor<
+      SymptomHistoryEntry,
+      ChartDataPoint
+    >(symptomDataConfig, symptomsHistoryRawData.values).data;
+    setSymptomsLegendDataSource(legendData);
+    const selectedCategories = legendData.filter((x) => x.isSelected);
+    const selectedSymptomIds = legendData
+      .map((x) =>
+        x.subcategory
+          .filter((y) => y.isSelected && !x.isSelected)
+          .map((x) => x.id)
+      )
+      .flat();
+    setSelectedSymptoms([...selectedSymptomIds]);
 
-  const updateLayout = (index: number) => {
+    const finalSymptoms: DataPoint<ChartDataPoint>[] = [];
+    for (const symptoms of symptomsChartData) {
+      for (const category of selectedCategories) {
+        for (const symptom of category.subcategory) {
+          if (symptoms.y.pointId === symptom.id) {
+            finalSymptoms.push({
+              x: symptoms.x,
+              y: { pointId: category.categoryName, time: symptoms.y.time },
+            });
+          }
+        }
+      }
+    }
+
+    finalSymptoms.push(
+      ...symptomsChartData.filter((x) =>
+        selectedSymptomIds.some((selected) => selected === x.y.pointId)
+      )
+    );
+    setSymptomChartData(finalSymptoms);
+  };
+
+  const updateMealLegendLayout = (index: number) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    const array = [...legendDataSource];
+    const array = [...mealLegendDataSource];
 
     array.forEach((value, placeindex) =>
       placeindex === index
@@ -142,31 +225,57 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
         : (value.isExpanded = false)
     );
 
-    updateLegendAndSelectedFoods(array);
+    updateMealLegendAndSelectedFoods(array);
+  };
+  const updateSymptomsLegendLayout = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    const array = [...symptomsLegendDataSource];
+
+    array.forEach((value, placeindex) =>
+      placeindex === index
+        ? (value.isExpanded = !value.isExpanded)
+        : (value.isExpanded = false)
+    );
+
+    updateSymptomsLegendAndSelectedSymptoms(array);
   };
 
   const setView = (mode: string) => {
     setMode(mode);
-    const configs = generateMealChartConfigs(mode, time);
-    setMealDataConfig(configs.dataConfig);
-    setMealChartLayoutConfig(configs.layoutConfig);
+
+    const mealConfigs = generateMealChartConfigs(mode, time);
+    setMealDataConfig(mealConfigs.dataConfig);
+    setLayoutConfig(mealConfigs.layoutConfig);
     const mealChartData = new ChartDataProcessor<
       MealHistoryEntry,
       ChartDataPoint
-    >(configs.dataConfig, mealHistoryRawData.values).data;
+    >(mealConfigs.dataConfig, mealHistoryRawData.values).data;
     setMealChartData(mealChartData);
+    updateMealLegendAndSelectedFoods(generateMealLegendContent(mealChartData));
 
-    updateLegendAndSelectedFoods(generateLegendContent(mealChartData));
+    const symptomsConfigs = generateSymptomsChartConfigs(mode, time);
+    setSymptomDataConfig(symptomsConfigs.dataConfig);
+    const symptomsChartData = new ChartDataProcessor<
+      SymptomHistoryEntry,
+      ChartDataPoint
+    >(symptomsConfigs.dataConfig, symptomsHistoryRawData.values).data;
+    setSymptomChartData(symptomsChartData);
+    updateSymptomsLegendAndSelectedSymptoms(
+      generateSymptomsLegendContent(symptomsChartData)
+    );
   };
-  const updateLegendData = () => {
-    updateLegendAndSelectedFoods(legendDataSource);
+  const updateMealLegendData = () => {
+    updateMealLegendAndSelectedFoods(mealLegendDataSource);
+  };
+  const updateSymptomsLegendData = () => {
+    updateSymptomsLegendAndSelectedSymptoms(symptomsLegendDataSource);
   };
   return (
     <ScrollView contentContainerStyle={styles.mainContainer}>
       <View style={styles.chartContainer}>
         <View style={styles.chartHeader}>
           <RegularText style={styles.chartTitleText}>
-            {mealChartLayoutConfig.title}
+            {layoutConfig.title}
           </RegularText>
           <SmallButton
             style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
@@ -208,27 +317,42 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
           <VictoryAxis
             crossAxis
             fixLabelOverlap
-            tickValues={mealChartLayoutConfig.xTicks()}
-            tickFormat={mealChartLayoutConfig.xTickFormatter}
+            tickValues={layoutConfig.xTicks()}
+            tickFormat={layoutConfig.xTickFormatter}
           />
           <VictoryAxis
             dependentAxis
             fixLabelOverlap
-            tickValues={mealChartLayoutConfig.yTicks()}
-            tickFormat={mealChartLayoutConfig.yTickFormatter}
+            tickValues={layoutConfig.yTicks()}
+            tickFormat={layoutConfig.yTickFormatter}
           />
           <VictoryScatter
             data={mealChartData}
             x="x"
             y="y.time"
-            size={mealChartLayoutConfig.dataSize}
+            size={layoutConfig.dataSize}
             style={{
               data: {
-                fill: ({ datum }) => ColorPicker.getColor(datum.y.foodId),
+                fill: ({ datum }) => ColorPicker.getColor(datum.y.pointId),
                 transform: ({ datum }) =>
-                  `translate(${mealChartLayoutConfig.jitterX(
-                    datum.y.foodId
-                  )}, ${mealChartLayoutConfig.jitterY(datum.y.foodId)})`,
+                  `translate(${layoutConfig.jitterX(
+                    datum.y.pointId
+                  )}, ${layoutConfig.jitterY(datum.y.pointId)})`,
+              },
+            }}
+          />
+          <VictoryScatter
+            data={symptomChartData}
+            x="x"
+            y="y.time"
+            size={layoutConfig.dataSize}
+            style={{
+              data: {
+                fill: ({ datum }) => ColorPicker.getColor(datum.y.pointId),
+                transform: ({ datum }) =>
+                  `translate(${layoutConfig.jitterX(
+                    datum.y.pointId
+                  )}, ${layoutConfig.jitterY(datum.y.pointId)})`,
               },
             }}
           />
@@ -236,13 +360,25 @@ export function AnalysisScreen({}: AnalysisScreenProps): React.ReactElement {
       </View>
       <View style={styles.legendContainer}>
         <ScrollView style={{ width: '100%' }}>
-          {legendDataSource.map((item, key) => (
+          {symptomsLegendDataSource.map((item, key) => (
             <ExpandableListElement
               key={item.categoryName}
               onExpand={() => {
-                updateLayout(key);
+                updateSymptomsLegendLayout(key);
               }}
-              onSelected={updateLegendData}
+              onSelected={updateSymptomsLegendData}
+              item={item}
+            />
+          ))}
+        </ScrollView>
+        <ScrollView style={{ width: '100%' }}>
+          {mealLegendDataSource.map((item, key) => (
+            <ExpandableListElement
+              key={item.categoryName}
+              onExpand={() => {
+                updateMealLegendLayout(key);
+              }}
+              onSelected={updateMealLegendData}
               item={item}
             />
           ))}
@@ -298,10 +434,46 @@ function generateMealChartConfigs(mode: string, time: Time) {
   const aggregate = dataConfig.valueAggregate((m) =>
     m.values.map((food) => {
       const time = m.datetime.getHours() + m.datetime.getMinutes() / 60;
-      return { time, foodId: food.foodId };
+      return { time, pointId: food.foodId };
     })
   );
 
+  setDateConfig(mode, layoutConfig, dataConfig, dateSelector, aggregate);
+
+  return {
+    dataConfig,
+    layoutConfig,
+  };
+}
+
+function generateSymptomsChartConfigs(mode: string, time: Time) {
+  const layoutConfig = new ChartLayoutConfig(time);
+  const dataConfig = new ChartDataProcessorConfig<
+    SymptomHistoryEntry,
+    ChartDataPoint
+  >(time);
+  const dateSelector = (s: SymptomHistoryEntry) => s.datetime;
+  const aggregate = dataConfig.valueAggregate((s) => {
+    const time = s.datetime.getHours() + s.datetime.getMinutes() / 60;
+    return { time, pointId: s.symptomId };
+  });
+
+  setDateConfig(mode, layoutConfig, dataConfig, dateSelector, aggregate);
+
+  return {
+    dataConfig,
+    layoutConfig,
+  };
+}
+
+function setDateConfig<T>(
+  mode: string,
+  layoutConfig: ChartLayoutConfig,
+  dataConfig: ChartDataProcessorConfig<T, ChartDataPoint>,
+  dateSelector: (m: T) => Date,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  aggregate: (items: T[]) => any
+) {
   switch (mode) {
     case 'year':
       layoutConfig.setYearConfig();
@@ -318,11 +490,6 @@ function generateMealChartConfigs(mode: string, time: Time) {
     default:
       break;
   }
-
-  return {
-    dataConfig,
-    layoutConfig,
-  };
 }
 
 function legendOrdering(
@@ -334,13 +501,13 @@ function legendOrdering(
   return a.categoryName > b.categoryName ? 1 : -1;
 }
 
-function generateLegendContent(data: DataPoint<ChartDataPoint>[]) {
+function generateMealLegendContent(data: DataPoint<ChartDataPoint>[]) {
   const foods: FoodCatalogueEntry[] | undefined = [];
   // Go over all data.y values.
   // For every, go through FoodCatalogue and take food catalogue entry if FC = data.y.foodid
   for (const point of data) {
     const food = foodCatalogueRawData.values.find(
-      (catalogueEntry) => point.y.foodId === catalogueEntry.foodId
+      (catalogueEntry) => point.y.pointId === catalogueEntry.foodId
     );
     if (food && !foods.some((f) => f.foodId == food.foodId)) {
       foods.push(food);
@@ -375,5 +542,37 @@ function generateLegendContent(data: DataPoint<ChartDataPoint>[]) {
       });
     }
   }
+  return legendContent.sort(legendOrdering);
+}
+
+function generateSymptomsLegendContent(data: DataPoint<ChartDataPoint>[]) {
+  const symptoms: SymptomCatalogueEntry[] | undefined = [];
+  // Go over all data.y values.
+  // For every, go through SymptomsCatalogue and take symptoms catalogue entry if FC = data.y.symptomsid
+  for (const point of data) {
+    const symptom = symptomsCatalogueRawData.values.find(
+      (catalogueEntry) => point.y.pointId === catalogueEntry.symptomId
+    );
+    if (symptom && !symptoms.some((f) => f.symptomId === symptom.symptomId)) {
+      symptoms.push(symptom);
+    }
+  }
+  // Group obtained array by x.category; there are none for symptoms
+  const grouped: Accumulator<SymptomCatalogueEntry> = { Symptoms: symptoms };
+  // Map to legendContent interface
+  const legendContent: ExpandableListElementItem[] = [
+    {
+      isExpanded: false,
+      isSelected: false,
+      categoryName: 'Symptoms',
+      subcategory: grouped['Symptoms'].map((symptoms) => {
+        return {
+          id: symptoms.symptomId,
+          text: symptoms.name,
+          isSelected: false,
+        };
+      }),
+    },
+  ];
   return legendContent.sort(legendOrdering);
 }

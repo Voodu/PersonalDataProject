@@ -1,4 +1,4 @@
 export class ChartDataPoint {
-  foodId: number | string = 0;
+  pointId: number | string = 0;
   time = 0;
 }

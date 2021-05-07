@@ -2,5 +2,5 @@ export class SymptomHistoryEntry {
   symptomId = 0;
   option = '';
   severity = 0;
-  datetime = '';
+  datetime: Date = new Date();
 }

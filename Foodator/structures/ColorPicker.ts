@@ -5,7 +5,7 @@ export class ColorPicker {
     }, ${this.hashCode(String(id + '2')) % 255})`;
   }
 
-  private static hashCode(s: string) {
+  private static hashCode(s: string): number {
     let hash = 0;
     for (let i = 0; i < s.length; i++) {
       const character = s.charCodeAt(i);

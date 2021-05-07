@@ -47,11 +47,17 @@ export class ChartLayoutConfig {
     this.jitterMagnitude = { x: 10, y: 5 };
   }
 
-  public jitterX(seed: number): number {
+  public jitterX(seed: number | string): number {
+    if (typeof seed === 'string') {
+      seed = ChartLayoutConfig.hashCode(seed);
+    }
     return this.jitter(seed, this.jitterMagnitude.x);
   }
 
-  public jitterY(seed: number): number {
+  public jitterY(seed: number | string): number {
+    if (typeof seed === 'string') {
+      seed = ChartLayoutConfig.hashCode(seed);
+    }
     return this.jitter(seed, this.jitterMagnitude.y);
   }
 
@@ -59,5 +65,15 @@ export class ChartLayoutConfig {
     const [min, max] = [-halfRange, halfRange];
     const range = max - min;
     return (seed % range) + min;
+  }
+
+  private static hashCode(s: string): number {
+    let hash = 0;
+    for (let i = 0; i < s.length; i++) {
+      const character = s.charCodeAt(i);
+      hash = (hash << 5) - hash + character;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return Math.abs(hash);
   }
 }
