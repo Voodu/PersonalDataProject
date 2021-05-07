@@ -8,8 +8,8 @@ export function HomeScreen({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Hello there!</Text>
-      <Text style={styles.title}>How do you feel?</Text>
-      <TouchableOpacity
+      <Text style={styles.title}>Choose graph version</Text>
+      {/* <TouchableOpacity
         onPress={() => navigation.navigate('AddFood')}
         style={styles.link}
       >
@@ -20,25 +20,25 @@ export function HomeScreen({
         style={styles.link}
       >
         <Text style={styles.linkText}>Discomfort_Add</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         onPress={() => navigation.navigate('Profile')}
         style={styles.link}
       >
-        <Text style={styles.linkText}>Profile</Text>
+        <Text style={styles.linkText}>Graph A</Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate('Analysis')}
         style={styles.link}
       >
-        <Text style={styles.linkText}>Analysis</Text>
+        <Text style={styles.linkText}>Graph B</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => navigation.navigate('Calendar')}
         style={styles.link}
       >
         <Text style={styles.linkText}>Calendar</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

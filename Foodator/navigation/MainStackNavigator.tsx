@@ -37,12 +37,12 @@ export default function MainStackNavigator(): React.ReactElement {
       <MainStack.Screen
         name="Analysis"
         component={AnalysisScreen}
-        options={{ headerTitle: 'Analysis' }}
+        options={{ headerTitle: 'Graph B' }}
       />
       <MainStack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ headerTitle: 'Profile' }}
+        options={{ headerTitle: 'Graph A' }}
       />
       <MainStack.Screen
         name="Calendar"
