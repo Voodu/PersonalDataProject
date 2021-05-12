@@ -8,14 +8,14 @@ export function HomeScreen({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Hello there!</Text>
-      <Text style={styles.title}>Choose graph version</Text>
-      {/* <TouchableOpacity
+      <Text style={styles.title}>What do you want to do?</Text>
+      <TouchableOpacity
         onPress={() => navigation.navigate('AddFood')}
         style={styles.link}
       >
-        <Text style={styles.linkText}>Food_Add</Text>
+        <Text style={styles.linkText}>Add food</Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => navigation.navigate('AddDiscomfort')}
         style={styles.link}
       >
